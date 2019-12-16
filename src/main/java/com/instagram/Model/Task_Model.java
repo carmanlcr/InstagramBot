@@ -4,12 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.instagram.Interface.Model;
-import com.mysql.jdbc.Statement;
 
 
 public class Task_Model implements Model {

@@ -7,12 +7,11 @@ import java.util.Date;
 import java.util.List;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import com.instagram.Interface.Model;
-import com.mysql.jdbc.Statement;
-import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 
 public class User implements Model{
@@ -142,8 +141,6 @@ public class User implements Model{
 			usercate.setUsers_id(getIdUser());
 			usercate.insert();
 			conexion.close();
-		}catch(MySQLIntegrityConstraintViolationException e) {
-			System.err.println("Ya existe un usuario, correo, o numero de telefono con est�s caracteristicas, por favor revisar la data");
 		}catch(SQLException e) {
 			System.err.println(e);
 		}

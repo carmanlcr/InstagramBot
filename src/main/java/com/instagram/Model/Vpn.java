@@ -3,11 +3,10 @@ package com.instagram.Model;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mysql.jdbc.Statement;
-import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 public class Vpn {
 
@@ -140,10 +139,7 @@ public class Vpn {
 				st.executeUpdate(insert);
 				
 				
-			}catch(MySQLIntegrityConstraintViolationException e) {
-				System.err.println(e);
-				return false;
-			} catch(Exception e)  {
+			} catch(SQLException e)  {
 				
 				System.err.println(e);
 				return false;

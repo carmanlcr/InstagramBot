@@ -1,15 +1,14 @@
 package com.instagram.Model;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.instagram.Interface.Model;
-import com.mysql.jdbc.PreparedStatement;
-import com.mysql.jdbc.Statement;
-import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 
 
@@ -31,8 +30,6 @@ public class Categories implements Model{
 				
 				conexion.close();
 				
-			}catch(MySQLIntegrityConstraintViolationException e) {
-				System.err.println(e);
 			} catch(SQLException e)  {
 				System.err.println(e);
 			} catch(Exception e){
