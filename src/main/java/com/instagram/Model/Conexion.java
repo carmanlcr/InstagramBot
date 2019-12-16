@@ -6,10 +6,10 @@ import java.sql.SQLException;
 
 
 public class Conexion {
-	private final String URL = "jdbc:mysql://192.168.2.6:3306/";
+	private final String URL = "jdbc:mysql://HOST:3306/";
     private final String BD = "instagram"; // Nombre de la BD.
-    private final String USER = "lmorales"; //Nomber del usuario
-    private final String PASSWORD = "Carabobo?18"; //contrase�a
+    private final String USER = "username"; //Nomber del usuario
+    private final String PASSWORD = "password"; //contrase�a
 
     public Connection connect = null;
 
