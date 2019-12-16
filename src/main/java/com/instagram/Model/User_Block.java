@@ -31,13 +31,15 @@ public class User_Block implements Model{
 	public void insert() {
 		setCreated_at(dateFormatDate.format(date));
 		setUpdated_at(dateFormatDateTime.format(date));
-		Connection conexion = conn.conectar();
-		try {
-			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,comentario,created_at,updated_at) VALUE "
-					+ " ("+getUsers_id()+", '"+getComentario()+"','"+getCreated_at()+"', '"+getUpdated_at()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
-			conexion.close();
+		String insert = "INSERT INTO "+TABLE_NAME+"(users_id,comentario,created_at,updated_at) VALUE "
+				+ " (?,?,?,?);";
+		try (Connection conexion = conn.conectar();){
+			PreparedStatement exe = conexion.prepareStatement(insert);
+			exe.setInt(1, getUsers_id());
+			exe.setString(2, getComentario());
+			exe.setString(3, getCreated_at());
+			exe.setString(4, getUpdated_at());
+			exe.executeUpdate();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -46,21 +48,20 @@ public class User_Block implements Model{
 	
 	public int getIdUser(){
 		int id = 0;
-		Connection conexion = conn.conectar();
 		
 		
-		try {
-			String queryExce = "SELECT us.users_id FROM "+TABLE_NAME+" us WHERE users_id = ? AND active = 1?;";
+		String queryExce = "SELECT us.users_id FROM "+TABLE_NAME+" us WHERE users_id = ? AND active = ?;";
+		try (Connection conexion = conn.conectar();){
+			
 			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
 			query.setInt(1, getUsers_id());
 			query.setInt(2, 1);
 			rs = query.executeQuery();
-
 			
 			while (rs.next() ) {
                id =  rs.getInt("us.users_id");
 			}
-			conexion.close();
+			
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -71,20 +72,15 @@ public class User_Block implements Model{
 	
 	public boolean desblockUser(String username) {
 		String query = "UPDATE "+TABLE_NAME+" SET active = ?, updated_at = ?  WHERE users_id = ? ";
-		Connection conexion = conn.conectar();
 		setUpdated_at(dateFormatDateTime.format(date));
 		User user = new User();
 		user.setUsername(username);
-		
-		try {
+		try (Connection conexion = conn.conectar();){
 			PreparedStatement pst = conexion.prepareStatement(query);
 			pst.setBoolean(1,false);
 			pst.setString(2, getUpdated_at());
 			pst.setInt(3, user.getIdUser());
-			
-			
 			pst.executeUpdate();
-			conexion.close();
 			return true;
 		}catch(SQLException e ) {
 			System.err.println(e);

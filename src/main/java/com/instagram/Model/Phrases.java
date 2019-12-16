@@ -24,13 +24,12 @@ public class Phrases implements Model{
 	
 	
 	public void insert() throws SQLException {
-		Statement st = null;
-		Connection conexion = conn.conectar();
 		Date date = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd H:m:s");
 		String strDate= formatter.format(date);
 		String insert = "";
-			try {
+			try (Connection conexion = conn.conectar();
+					Statement st = conexion.createStatement();){
 				if(getGeneres_id() == 0 && getSub_categories_id() == 0) {
 					insert = "INSERT INTO "+TABLE_NAME+"(phrase,created_at,updated_at,categories_id) "
 							+ "VALUE ('"+getPhrase()+"','"+strDate+"', '"+strDate+"',"+getCategories_id()+");";
@@ -45,7 +44,6 @@ public class Phrases implements Model{
 							+ "VALUE ('"+getPhrase()+"','"+strDate+"','"+strDate+"',"+getCategories_id()+","+getSub_categories_id()+","
 							+getGeneres_id()+");";
 				}
-				st = (Statement) conexion.createStatement();
 				st.executeUpdate(insert);
 				
 			} catch(SQLException e)  {
@@ -53,21 +51,18 @@ public class Phrases implements Model{
 			} catch(Exception e){
 				System.err.println(e);
 				
-			}finally {
-				st.close();
-				conexion.close();
 			}
-			
 	}
 	
 	 
 	public Phrases getPhraseRandom() throws SQLException{
 		
 		Phrases phra = new Phrases();
-		Connection conexion = conn.conectar();
-		Statement st = (Statement) conexion.createStatement();
+		
+		
 		ResultSet rs = null;
-		try {
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();){
 			
 			String queryExce = "SELECT * FROM "+TABLE_NAME+" ph "
 					+ "WHERE ph.active = ? AND ph.categories_id = ? "
@@ -89,9 +84,6 @@ public class Phrases implements Model{
 			}
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally {
-			st.close();
-			conexion.close();
 		}
 		
 		return phra;
@@ -100,10 +92,10 @@ public class Phrases implements Model{
 	public String getPhraseRandomSubCategorie() throws SQLException{
 		
 		String list = "";
-		Connection conexion = conn.conectar();
-		Statement st = (Statement) conexion.createStatement();
+		
 		ResultSet rs = null;
-		try {
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();){
 			
 			String queryExce = "SELECT ph.phrase FROM "+TABLE_NAME+" ph "
 					+ "WHERE ph.active = ? AND ph.categories_id = ? "
@@ -120,9 +112,6 @@ public class Phrases implements Model{
 			}
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally {
-			st.close();
-			conexion.close();
 		}
 		
 		return list;

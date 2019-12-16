@@ -36,8 +36,8 @@ public class Post implements Model{
 
 	public void insert() {
 		setCreated(dateFormat.format(date));
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO "+TABLE_NAME+""
 					+ "(users_id,categories_id,tasks_model_id,phrases_id,link_publication,user_transmition,link_instagram,created_at) "
 					+ " VALUE (?,?,?,?,?,?,?,?);";
@@ -74,14 +74,10 @@ public class Post implements Model{
 				+ " LEFT JOIN "+TABLE_NAME+" pt ON pt.users_id = us.users_id AND categories_id =  "+categories_id
 				+ " WHERE DATE(pt.created_at) = '"+created_at+"') AS c "
 				+ " GROUP BY c.username; ";
-		Statement st = null;
-		ResultSet rs = null;
-		Connection conexion = conn.conectar();
 		
-		try {
-			
-			st = (Statement) conexion.createStatement();
-			rs = st.executeQuery(query);
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();
+				ResultSet rs = st.executeQuery(query)){
 			
 			while (rs.next() ) {
 				array = new String[2];
@@ -90,7 +86,6 @@ public class Post implements Model{
 				list.add(increment, array);
 				increment++;
 			}
-			conexion.close();
 		}catch(Exception e) {
 			System.err.println(e);
 		}
@@ -100,19 +95,14 @@ public class Post implements Model{
 	
 	public int getLast() {
 		int id = 0;
-		Connection conexion = conn.conectar();
-		
-		
-		try {
-			
-			st = (Statement) conexion.createStatement();
-			rs = st.executeQuery("SELECT po.posts_id FROM "+TABLE_NAME+" po ORDER BY po.posts_id DESC LIMIT 1");
-
+		String query = "SELECT po.posts_id FROM "+TABLE_NAME+" po ORDER BY po.posts_id DESC LIMIT 1";
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();
+				ResultSet rs = st.executeQuery(query)){
 			
 			while (rs.next() ) {
                id =  rs.getInt("po.posts_id");
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -122,14 +112,14 @@ public class Post implements Model{
 	
 	public int getLastsTasktPublic(){
 		int idTask = 0;
-		Connection conexion = conn.conectar();
 		
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			String queryExce = "SELECT * FROM tasks_model tm " + 
 					"WHERE tm.tasks_model_id NOT IN (SELECT pt.tasks_model_id FROM "+TABLE_NAME+" pt WHERE users_id = ? AND DATE(pt.created_at) BETWEEN ? AND ?) " + 
 					"ORDER BY RAND() LIMIT 1;";
 	
-		PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+		PreparedStatement  query = conexion.prepareStatement(queryExce);
 		query.setInt(1, getUsers_id());
 		query.setString(2, dateFormat1.format(new Date( date.getTime()-86400000)));
 		query.setString(3, dateFormat1.format(date));
@@ -139,7 +129,6 @@ public class Post implements Model{
 		if(rs.next()) {
 			idTask = rs.getInt("tm.tasks_model_id");
 		}
-		conexion.close();
 		}catch(SQLException e) {
 			e.getStackTrace();
 		}

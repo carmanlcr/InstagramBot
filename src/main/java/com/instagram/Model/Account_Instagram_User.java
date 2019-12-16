@@ -24,8 +24,8 @@ public class Account_Instagram_User implements Model {
 	
 	public void insert() throws SQLException {
 		setCreated_at(dateFormat.format(date));
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO "+TABLE_NAME+""
 					+ "(users_id,accounts_instagram_id,created_at) "
 					+ " VALUE (?,?,?);";
@@ -37,7 +37,6 @@ public class Account_Instagram_User implements Model {
 			
 			query.executeUpdate();
 			
-			conexion.close();
 			
 		}catch(SQLException e) {
 			System.err.println(e);
@@ -45,9 +44,9 @@ public class Account_Instagram_User implements Model {
 	}
 	
 	public Account_Instagram getAccountsFollowUser() {
-		Connection conexion = conn.conectar();
+		
 		Account_Instagram ac = null;
-		try {
+		try(Connection conexion = conn.conectar();) {
 			String query = "SELECT ai.* FROM accounts_instagram ai " + 
 					"WHERE ai.accounts_instagram_id NOT IN " + 
 					"(SELECT aiu.accounts_instagram_id FROM "+TABLE_NAME+" aiu WHERE aiu.users_id = ?) " + 
@@ -66,8 +65,6 @@ public class Account_Instagram_User implements Model {
 				ac.setCategories_id(rs.getInt("ai.categories_id"));
 				ac.setCreated_at(rs.getString("ai.created_at"));
 			}
-			conexion.close();
-			return ac;
 		}catch(SQLException e) {
 			System.err.println(e);
 		}

@@ -22,20 +22,20 @@ public class Task implements Model{
 	private boolean active;
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
-	private static Conexion conn = new Conexion();
+	private Conexion conn = new Conexion();
 	Statement st;
 	ResultSet rs;
 	
 	public void insert() throws SQLException {
-		Connection conexion = conn.conectar();
-		setCreated_at(dateFormatDateTime.format(date));
 		
-		try {
-			String insert = "INSERT INTO "+TABLE_NAME+"(name,created_at) VALUE "
-					+ " ('"+getName()+"','"+getCreated_at()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
-			conexion.close();
+		setCreated_at(dateFormatDateTime.format(date));
+		String insert = "INSERT INTO "+TABLE_NAME+"(name,created_at) VALUE "
+				+ " (?,?);";
+		try (Connection conexion = conn.conectar();){
+			PreparedStatement exe = conexion.prepareStatement(insert);
+			exe.setString(1, getName());
+			exe.setString(2, getCreated_at());
+			exe.executeUpdate();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -45,18 +45,16 @@ public class Task implements Model{
 	public List<String> getTasksActive(){
 		List<String> list = new ArrayList<String>();
 		
-		Connection conexion = conn.conectar();
+		
 		String query = "SELECT t.name FROM "+TABLE_NAME+" t " + 
 				"WHERE active = ?;"; 
-		try {
+		try (Connection conexion = conn.conectar();){
 			PreparedStatement pst = conexion.prepareStatement(query);
 			pst.setInt(1, 1);
 			rs = pst.executeQuery();
-			
 			while (rs.next() ) {
 				list.add(rs.getString("t.name"));
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}

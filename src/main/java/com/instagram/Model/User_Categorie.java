@@ -1,6 +1,7 @@
 package com.instagram.Model;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -24,15 +25,16 @@ public class User_Categorie implements Model{
 	ResultSet rs;
 	
 	public void insert() {
-		Connection conexion = conn.conectar();
+		
 		setCreated_at(dateFormat.format(date));
-		try {
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,created_at) "
-					+ " VALUE ("+getUsers_id()+", "+getCategories_id()+", '"+getCreated_at()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
-
-			conexion.close();
+					+ " VALUE (?,?,?);";
+			PreparedStatement exe = conexion.prepareStatement(insert);
+			exe.setInt(1, getUsers_id());
+			exe.setInt(2, getCategories_id());
+			exe.setString(3, getCreated_at());
+			exe.executeUpdate();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -40,15 +42,18 @@ public class User_Categorie implements Model{
 	}
 	
 	public boolean inserts() {
-		Connection conexion = conn.conectar();
+		String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,created_at) "
+				+ " VALUE (?,?,?);";
 		setCreated_at(dateFormat.format(date));
-		try {
-			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,created_at) "
-					+ " VALUE ("+getUsers_id()+", "+getCategories_id()+", '"+getCreated_at()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
+		try (Connection conexion = conn.conectar();){
+			
+			PreparedStatement exe = conexion.prepareStatement(insert);
+			exe.setInt(1, getUsers_id());
+			exe.setInt(2, getCategories_id());
+			exe.setString(3, getCreated_at());
+			
+			exe.executeUpdate();
 
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 			return false;
@@ -58,10 +63,10 @@ public class User_Categorie implements Model{
 	}
 	
 	public void updateCategories() throws SQLException{
-		Connection conexion = conn.conectar();
+		String update = "UPDATE "+TABLE_NAME+" SET categories_id ="+getCategories_id()+" WHERE users_id = "+getUsers_id();
 		setCreated_at(dateFormat.format(date));
-		try {
-			String update = "UPDATE "+TABLE_NAME+" SET categories_id ="+getCategories_id()+" WHERE users_id = "+getUsers_id();
+		try (Connection conexion = conn.conectar();){
+			
 			st = (Statement) conexion.createStatement();
 			st.executeUpdate(update);
 

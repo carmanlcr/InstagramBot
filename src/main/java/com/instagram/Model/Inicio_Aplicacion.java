@@ -1,9 +1,8 @@
 package com.instagram.Model;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -17,19 +16,20 @@ public class Inicio_Aplicacion implements Model{
 	private static Conexion conn = new Conexion();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	Statement st;
-	ResultSet rs;
+	
+	
 	
 	public void insert() {
-		Connection conexion = conn.conectar();
 		setCreated_at(dateFormat.format(date));
-		try {
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO inicio_aplicacion(version,created_at) "
-					+ " VALUE ('"+getVersion()+"','"+getCreated_at()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
-			conexion.close();
+					+ " VALUE (?,?);";
 			
+			PreparedStatement pst = conexion.prepareStatement(insert);
+			pst.setString(1, getVersion());
+			pst.setString(2, getCreated_at());
+			
+			pst.executeUpdate();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}

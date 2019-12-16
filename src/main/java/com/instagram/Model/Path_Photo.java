@@ -28,11 +28,11 @@ public class Path_Photo implements Model {
 	ResultSet rs;
 	
 	public void insert() throws SQLException {
-		Connection conexion = conn.conectar();
+		
 		setCreated_at(dateFormatDateTime.format(date));
 		
 		String insert = "";
-		try {
+		try (Connection conexion = conn.conectar();){
 			if(getGeneres_id() == 0 && getSub_categories_id() == 0) {
 				insert = "INSERT INTO path_photos(path,created_at,categories_id) "
 						+ "VALUE ('"+getPath()+"','"+getCreated_at()+"',"+getCategories_id()+");";
@@ -57,7 +57,6 @@ public class Path_Photo implements Model {
 			
 		}finally {
 			st.close();
-			conexion.close();
 		}
 	}
 	
@@ -66,10 +65,10 @@ public class Path_Photo implements Model {
 	 * @deprecated
 	 */
 	public void desactPathPhoto() {
-		Connection conexion = conn.conectar();
+		
 		
 		String update = "";
-		try {
+		try (Connection conexion = conn.conectar();){
 			update = "UPDATE path_photos SET active = ? WHERE categories_id=? AND sub_categories_id = ? AND generes_id = ?";
 			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(update);
 			query.setInt(1, 0);
@@ -78,7 +77,6 @@ public class Path_Photo implements Model {
 			query.setInt(4, getGeneres_id());
 			query.executeUpdate();
 			
-			conexion.close();
 		} catch(SQLException e)  {
 			System.err.println(e);
 		} catch(Exception e){
@@ -91,9 +89,9 @@ public class Path_Photo implements Model {
 		String path = "";
 		String query = "";
 		ResultSet rs = null;
-		Connection conexion = conn.conectar();
+		
 		PreparedStatement  queryE;
-		try {
+		try(Connection conexion = conn.conectar();) {
 			
 			if(getSub_categories_id() == 0) {
 				query = "SELECT path FROM path_photos WHERE categories_id=? AND generes_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
@@ -124,13 +122,6 @@ public class Path_Photo implements Model {
 			}
 		}catch(SQLException e) {
 			System.err.println(e);
-		}finally{
-			try {
-				conexion.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			
 		}	
 				
 		return path;

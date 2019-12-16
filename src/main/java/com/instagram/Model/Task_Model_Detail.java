@@ -26,16 +26,17 @@ public class Task_Model_Detail implements Model {
 	ResultSet rs;
 	
 	public void insert() throws SQLException {
-		
-		Connection conexion = conn.conectar();
 		setCreated_at(dateFormatDateTime.format(date));
-		
-		try {
-			String insert = "INSERT INTO tasks_model_detail(tasks_model_id,tasks_id,created_at) VALUE "
-					+ " ('"+getTasks_model_id()+"','"+getTasks_id()+"','"+getCreated_at()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
-			conexion.close();
+		String insert = "INSERT INTO tasks_model_detail(tasks_model_id,tasks_id,created_at) VALUE "
+				+ " (?,?,?);";
+		try (Connection conexion = conn.conectar();){
+			
+			PreparedStatement exe = conexion.prepareStatement(insert);
+			exe.setInt(1, getTasks_model_id());
+			exe.setInt(2, getTasks_id());
+			exe.setString(3, getCreated_at());
+			
+			exe.executeUpdate();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -45,24 +46,16 @@ public class Task_Model_Detail implements Model {
 	
 	public List<Integer> getTaskModelDetailDiferent(){
 		List<Integer> list = new ArrayList<Integer>();
-		Connection conexion = conn.conectar();
-		try {
-			
-			String queryExce = "SELECT tmd.tasks_id FROM tasks_model_detail tmd " + 
-								"WHERE tasks_model_id = ?;";
-			
+		String queryExce = "SELECT tmd.tasks_id FROM tasks_model_detail tmd " + 
+				"WHERE tasks_model_id = ?;";
+		try (Connection conexion = conn.conectar();){
 			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
 			query.setInt(1, getTasks_model_id());
 			rs = query.executeQuery();
 			
 			while (rs.next() ) {
 				 list.add(rs.getInt("tmd.tasks_id"));
-
-               
 			}
-			
-			conexion.close();
-			
 		}catch(SQLException e) {
 			System.err.println(e);
 		}

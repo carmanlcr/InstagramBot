@@ -19,19 +19,18 @@ public class Task_Model implements Model {
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	private static Conexion conn = new Conexion();
-	Statement st;
 	ResultSet rs;
 	
 	public void insert() throws SQLException {
-		Connection conexion = conn.conectar();
 		setCreated_at(dateFormat.format(date));
-		
-		try {
-			String insert = "INSERT INTO tasks_model(name,created_at) VALUE "
-					+ " ('"+getName()+"','"+getCreated_at()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
-			conexion.close();
+		String insert = "INSERT INTO tasks_model(name,created_at) VALUE "
+				+ " (?,?);";
+		try (Connection conexion = conn.conectar();){
+			
+			PreparedStatement exe = conexion.prepareStatement(insert);
+			exe.setString(1, getName());
+			exe.setString(2, getCreated_at());
+			exe.executeUpdate();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -40,19 +39,13 @@ public class Task_Model implements Model {
 	
 	public int getLast() {
 		int id = 0;
-		Connection conexion = conn.conectar();
-		
-		
-		try {
-			
-			st = (Statement) conexion.createStatement();
-			rs = st.executeQuery("SELECT tk.tasks_model_id FROM tasks_model tk ORDER BY tk.tasks_model_id DESC LIMIT 1");
-
-			
+		String query = "SELECT tk.tasks_model_id FROM tasks_model tk ORDER BY tk.tasks_model_id DESC LIMIT 1";
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();){
+			rs = st.executeQuery(query);
 			while (rs.next() ) {
                id =  rs.getInt("tk.tasks_model_id");
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -62,19 +55,18 @@ public class Task_Model implements Model {
 
 	public int getTaskModelDetailDiferent(String values){
 		int list = 0;
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			
 			String queryExce = "SELECT tm.tasks_model_id FROM tasks_model tm " + 
 							"WHERE tm.tasks_model_id NOT IN ("+values+") ORDER BY rand() LIMIT 1;";
 			
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			PreparedStatement  query = conexion.prepareStatement(queryExce);
 			rs = query.executeQuery();
 			
 			if (rs.next() ) {
 				list = rs.getInt("tm.tasks_model_id");
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}

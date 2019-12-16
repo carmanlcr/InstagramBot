@@ -23,12 +23,11 @@ public class Account_Instagram implements Model {
 	
 	public void insert() throws SQLException {
 		setCreated_at(dateFormat.format(date));
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO "+TABLE_NAME+""
 					+ "(account,generes_id,categories_id,created_at) "
 					+ " VALUE (?,?,?,?);";
-			
 			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(insert);
 			query.setString(1, getAccount());
 			query.setInt(2, getGeneres_id());
@@ -37,7 +36,6 @@ public class Account_Instagram implements Model {
 			
 			query.executeUpdate();
 			
-			conexion.close();
 			
 		}catch(SQLException e) {
 			System.err.println(e);

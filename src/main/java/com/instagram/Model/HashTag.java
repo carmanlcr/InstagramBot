@@ -24,13 +24,12 @@ public class HashTag implements Model{
 	private static Conexion conn = new Conexion();
 	
 	public void insert() throws SQLException {
-		Statement st = null;
-		Connection conexion = conn.conectar();
 		Date date = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 		String strDate= formatter.format(date);
 		String insert = "";
-			try {
+			try (Connection conexion = conn.conectar();
+					Statement st = conexion.createStatement();){
 				
 				if(getGeneres_id() == 0 && getSub_categories_id() == 0) {
 					insert = "INSERT INTO hashtag(name,created_at,categories_id) "
@@ -48,16 +47,12 @@ public class HashTag implements Model{
 							+ "VALUE ('"+getName()+"','"+strDate+"',"+getCategories_id()+","+getSub_categories_id()+","
 							+getGeneres_id()+");";
 				}
-				st = (Statement) conexion.createStatement();
 				st.executeUpdate(insert);
 				
 			} catch(SQLException e)  {
 				System.err.println(e);
 			} catch(Exception e){
 				System.err.println(e);
-			}finally {
-				st.close();
-				conexion.close();
 			}
 			
 		
@@ -67,9 +62,9 @@ public class HashTag implements Model{
 		
 		String[] list = new String[4];
 		int indice = 0;
-		Connection conexion = conn.conectar();
+		
 		ResultSet rs = null;
-		try {
+		try (Connection conexion = conn.conectar();){
 			
 			String queryExce = "SELECT ht.name FROM hashtag ht "
 					+ "WHERE ht.active = ? AND ht.generes_id = ? "
@@ -87,8 +82,6 @@ public class HashTag implements Model{
 			}
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally {
-			conexion.close();
 		}
 		
 		return list;
@@ -96,15 +89,13 @@ public class HashTag implements Model{
 	
 	public List<String> getHashTagForCategories(){
 		List<String> list = new ArrayList<String>();
-		
-		Connection conexion = conn.conectar();
 		ResultSet rs = null;
-		try {
+		try (Connection conexion = conn.conectar();){
 			
 			String queryExce = "SELECT ht.name FROM hashtag ht "
 					+ "WHERE ht.active = ? AND ht.generes_id = ? "
 					+ "AND ht.categories_id = ? ; ";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			PreparedStatement  query = conexion.prepareStatement(queryExce);
 			query.setInt(1, 1);
 			query.setInt(2, getGeneres_id());
 			query.setInt(3, getCategories_id());
@@ -115,12 +106,6 @@ public class HashTag implements Model{
 			}
 		}catch(SQLException e) {
 			System.err.println(e);
-		}finally {
-			try {
-				conexion.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 		
 		return list;
@@ -129,10 +114,10 @@ public class HashTag implements Model{
 	public int getIdCategorieHashTag() throws SQLException {
 		int id = 0;
 		ResultSet rs = null;
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			String queryExce = "SELECT * FROM hashtag WHERE name = ? AND active = ? LIMIT ?;";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			PreparedStatement  query = conexion.prepareStatement(queryExce);
 			query.setString(1, getName());
 			query.setInt(2, 1);
 			query.setInt(3, 1);
@@ -145,8 +130,6 @@ public class HashTag implements Model{
 			}
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally{
-			conexion.close();
 		}
 		
 		return id;
