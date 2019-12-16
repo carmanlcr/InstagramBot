@@ -1,9 +1,9 @@
 package com.instagram.Model;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import com.mysql.jdbc.Connection;
 
 public class Conexion {
 	private final String URL = "jdbc:mysql://192.168.2.6:3306/";
@@ -22,7 +22,7 @@ public class Conexion {
             //Conexion claro
             
               // Ubicaci�n de la BD.
-             Class.forName("com.mysql.jdbc.Driver");
+             Class.forName("com.mysql.cj.jdbc.Driver");
               
             connect = (Connection) DriverManager.getConnection(URL + BD, USER, PASSWORD);
         }catch(SQLException e2) {
