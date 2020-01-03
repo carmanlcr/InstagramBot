@@ -192,7 +192,7 @@ public class Ejecucion extends JFrame {
 				scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 				scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 				panel.setEnabled(false);
-				panel.setLayout(new GridLayout(0, 5, 0, 0));
+				panel.setLayout(new GridLayout(0, 4, 0, 0));
 				scrollPane.setViewportView(panel);
 				textF.setText("Usuario");
 				final List<JCheckBox>  listaHashTag = new ArrayList<JCheckBox>();

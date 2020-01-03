@@ -22,7 +22,7 @@ import com.instagram.Model.*;
 public class InicioController {
 	
 	private final String PAGE = "www.instagram.com";
-	private static Post post1 = new Post();
+	private Post post1 = new Post();
 	private static String[] user;
 	private static User users;
 	private static RobotController robot;
@@ -31,10 +31,10 @@ public class InicioController {
 	private static List<List<String>> checkBoxHashTag = new ArrayList<List<String>>();
 	private static List<JComboBox<String>> comboBoxGenere = new ArrayList<JComboBox<String>>();
 	private List<JTextField> listUsers = new ArrayList<JTextField>();
-	private static int categoria_id;
-	private static int idGenere;
+	private int categoria_id;
+	private int idGenere;
 	private int usuariosAProcesar = 1;
-	private static int ini = 0;
+	private int ini = 0;
 	private int count = 0;
 	private boolean banderaVpn = false; 
 	private boolean banderaToggle = true;
@@ -220,7 +220,7 @@ public class InicioController {
 	}
 
 	
-	private static String uploadImageFinal(String pie, String usuario) throws InterruptedException, SQLException {
+	private String uploadImageFinal(String pie, String usuario) throws InterruptedException, SQLException {
 		int value = (int) (Math.random() * 100000) + 1;
 		int dimensionx = (int) (Math.random() * 3) + 0;
 		int dimensiony = (int) (Math.random() * 5) + 0;
@@ -313,19 +313,20 @@ public class InicioController {
 		post1.setLink_publcation(pie);
 		post1.setUser_transmition(usuario);
 		List<String> copia = checkBoxHashTag.get(ini);
-		int x = getNumberRandomForSecond(0,copia.size() -1);
-		String hx = copia.get(x);
-		System.out.println("HashTag 1 a publicar "+hx);
-		copia.remove(x);
-		int y = getNumberRandomForSecond(0,copia.size() -1);
-		String hy = copia.get(y);
-		System.out.println("HashTag 2 a publicar "+hy);
-		copia.remove(y);
-		int z = getNumberRandomForSecond(0,copia.size() -1);
-		String hz = copia.get(z);
-		System.out.println("HashTag 3 a publicar "+hz);
-		copia.remove(z);
-		String hash = hx+ " "+ hy+ " "+ hz;
+		String hash = "";
+	    
+		if (copia.size() > 2) {
+			Collections.shuffle(copia);
+			
+			hash += copia.get(0) +  " ";
+			hash += copia.get(1) +  " ";
+			hash += copia.get(2) +  " ";
+			
+		} else if (copia.size() > 0 && copia.size() < 2) {
+			Collections.shuffle(copia);
+			
+			hash += copia.get(0) +  " ";
+		}
 		//234, 192
 		robot.dimensions(234, 192);
 		Thread.sleep(getNumberRandomForSecond(478, 896));
@@ -533,7 +534,7 @@ public class InicioController {
 		robot.clickPressed();
 		Thread.sleep(getNumberRandomForSecond(2001, 3099));
 		//Seleccionar la ultima foto que publico
-		robot.dimensions(319, 823);
+		robot.dimensions(319, 760);
 		Thread.sleep(getNumberRandomForSecond(254, 456));
 		robot.clickPressed();
 		Thread.sleep(getNumberRandomForSecond(3325, 3878));
@@ -564,10 +565,7 @@ public class InicioController {
 		
 		post1.setLink_instagram(link_instagram);
 		if(post1.getLink_instagram() == null 
-				|| post1.getLink_instagram().isEmpty() 
-				|| post1.getLink_instagram().equals("www.instagram.com")
-				|| post1.getLink_instagram().equals("https:\\www.instagram.com")
-				|| post1.getLink_instagram().equals("http:\\www.instagram.com")) {
+				|| !validateUrl(link_instagram)) {
 			System.out.println("No se agragará el post ya que no hay link para agregar");
 		}else {
 			post1.insert();
@@ -589,6 +587,14 @@ public class InicioController {
 		
 	}
 	
+	private boolean validateUrl(String path) {
+		for(int i = 0; i<path.length()-6; i++) {
+			if(path.substring(i,i+6).equals(".com/p")) {
+				return true;
+			}
+		}
+		return false;
+	}
 	private void perfilLike(int valueScroll) throws InterruptedException, SQLException {
 		System.out.println("ENTRAR EN PERFIL Y DAR LIKE!");
 		Account_Instagram_User acount = new Account_Instagram_User();

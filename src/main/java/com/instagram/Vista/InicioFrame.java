@@ -87,7 +87,6 @@ public class InicioFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public InicioFrame() {
-		
 		setTitle("InstaBot");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
