@@ -534,7 +534,7 @@ public class InicioController {
 		robot.clickPressed();
 		Thread.sleep(getNumberRandomForSecond(2001, 3099));
 		//Seleccionar la ultima foto que publico
-		robot.dimensions(319, 760);
+		robot.dimensions(319, 745);
 		Thread.sleep(getNumberRandomForSecond(254, 456));
 		robot.clickPressed();
 		Thread.sleep(getNumberRandomForSecond(3325, 3878));
