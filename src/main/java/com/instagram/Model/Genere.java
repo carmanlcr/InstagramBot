@@ -19,6 +19,7 @@ import com.instagram.Interface.Model;
 public class Genere implements Model{
 	
 	private final String TABLE_NAME ="generes";
+	private int generes_id;
 	private String name;
 	private String created_at;
 	private int categories_id;
@@ -122,9 +123,19 @@ public class Genere implements Model{
 		
 		return idGenere;
 	}
+
 	
 	
-	
+	public int getGeneres_id() {
+		return generes_id;
+	}
+
+
+	public void setGeneres_id(int generes_id) {
+		this.generes_id = generes_id;
+	}
+
+
 	public String getName() {
 		return name;
 	}
