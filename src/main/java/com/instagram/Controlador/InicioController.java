@@ -333,7 +333,7 @@ public class InicioController {
 		robot.clickPressed();
 		Thread.sleep(getNumberRandomForSecond(2489, 3549));
 		
-		robot.inputWrite(fraseRandom.getPhrase()+" "+pie+" "+hash+" "+usuario);
+		robot.inputWrite(fraseRandom.getPhrase()+" "+pie+" "+hash+" ",usuario);
 //		inputWritePieDeFoto("_472V_",fraseRandom.getPhrase()+""+pie+" "+hash,usuario);
 		Thread.sleep(getNumberRandomForSecond(1489, 1549));
 		//1215,134
