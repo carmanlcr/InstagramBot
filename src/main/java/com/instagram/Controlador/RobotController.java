@@ -90,10 +90,10 @@ public class RobotController {
 		//Presionar Galaxy S5
 		dimensions(518, 188);
 		clickPressed();
-		Thread.sleep(2250);
+		Thread.sleep(1250);
 		//Cambiar a modo telefono y acutalizar
 		pressF5();
-		Thread.sleep(2250);
+		Thread.sleep(5250);
 		pressF12();
 	}
 	
@@ -219,7 +219,7 @@ public class RobotController {
 	 *  @author Luis Morales
 	 *  
 	 */
-	public void pulsarTabulador() {
+	protected void pressTab() {
 		robot.keyPress(KeyEvent.VK_TAB);
 		robot.keyRelease(KeyEvent.VK_TAB);
 	}
@@ -580,7 +580,7 @@ public class RobotController {
 		}
 	}
 	
-	protected void inputWrite(String inputData,String user) throws InterruptedException {
+	protected void inputWriteUsers(String inputData,String user) throws InterruptedException {
 		RobotController rob = new RobotController();
 		for(int i=0;i<inputData.length();i++) {
 			Thread.sleep(164);
