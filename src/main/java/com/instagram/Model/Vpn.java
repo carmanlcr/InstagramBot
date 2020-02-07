@@ -1,6 +1,7 @@
 package com.instagram.Model;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -10,6 +11,8 @@ import java.util.Map;
 
 public class Vpn {
 
+	private final String TABLE_NAME = "vpn";
+	private int vpn_id;
 	private String name;
 	private boolean activo;
 	private static Conexion conn = new Conexion();
@@ -153,7 +156,36 @@ public class Vpn {
 		
 	}
 	
+	public HashMap<String,Integer> getAllVpn(){
+		HashMap<String,Integer> mapGe = new HashMap<String,Integer>();
+		
+		String query = "SELECT * FROM "+TABLE_NAME+" v WHERE active = 1;";
+		
+		try (Connection conexion = conn.conectar();){
+			PreparedStatement pst = conexion.prepareStatement(query);
+			ResultSet rs = pst.executeQuery();
+			while (rs.next() ) {
+				mapGe.put(rs.getString("v.name"), rs.getInt("v.vpn_id"));
+			}
+		}catch(SQLException e) {
+			System.err.println(e);
+		}
+		
+		
+		
+		return mapGe;
+	}
 	
+	
+	
+	public int getVpn_id() {
+		return vpn_id;
+	}
+
+	public void setVpn_id(int vpn_id) {
+		this.vpn_id = vpn_id;
+	}
+
 	public String getName() {
 		return name;
 	}

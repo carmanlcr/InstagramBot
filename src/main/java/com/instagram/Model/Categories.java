@@ -6,15 +6,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.instagram.Interface.Model;
 
 
-
 public class Categories implements Model{
 
-	
+	private final String TABLE_NAME = "categories";
+	private int categories_id;
 	private String name;
 	private static Conexion conn = new Conexion();
 	
@@ -66,6 +67,25 @@ public class Categories implements Model{
 		return list;
 	}
 
+	public HashMap<String, Integer> getComboBox(){
+		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		String sql = "SELECT * FROM "+TABLE_NAME+" WHERE active = ? ORDER BY name ASC";
+		ResultSet rs = null;
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pre = conexion.prepareStatement(sql)){
+			
+			pre.setInt(1, 1);
+			rs = pre.executeQuery();
+			
+			while(rs.next()) map.put(rs.getString("name"), rs.getInt("categories_id"));
+		}catch (SQLException e) {
+			e.getStackTrace();
+		}
+		
+		
+		return map;
+	}
+	
 	public int getIdCategories(String name) throws SQLException {
 		int id = 0;
 		String query = "SELECT * FROM categories WHERE name = '"+name+"' AND active = 1;";
@@ -154,6 +174,15 @@ public class Categories implements Model{
 		return concat;
 	}
 	
+
+	public int getCategories_id() {
+		return categories_id;
+	}
+
+	public void setCategories_id(int categories_id) {
+		this.categories_id = categories_id;
+	}
+
 	public String getName() {
 		return name;
 	}
