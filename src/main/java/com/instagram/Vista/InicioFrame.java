@@ -7,8 +7,12 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import org.sikuli.script.Screen;
+
 import com.instagram.Model.*;
 import com.instagram.Model.Inicio_Aplicacion;
+
+import com.instagram.Controlador.*;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -60,6 +64,7 @@ public class InicioFrame extends JFrame {
 	private static JComboBox<String> comboBox;
 	private JButton empezar = new JButton("Comenzar");
 	private static Inicio_Aplicacion iniApli = new Inicio_Aplicacion();
+	private static Screen s;
 	
 	/**
 	 * Launch the application.
@@ -68,12 +73,15 @@ public class InicioFrame extends JFrame {
 	public static void main(String[] args) throws SQLException {
 		List<String> list = cate.getAllActive();
 		comboBox = setComboBox(list);
+		SikuliTest si = new SikuliTest();
+		si.run();
+		s = si.getScreen();
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					InicioFrame frame = new InicioFrame();
 					frame.setVisible(true);
-					
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -270,7 +278,7 @@ public class InicioFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					int id = cate.getIdCategories((String) comboBox.getSelectedItem());
-					Ejecucion eje = new Ejecucion(id);
+					Ejecucion eje = new Ejecucion(id,s);
 					setExtendedState(ICONIFIED);
 					eje.inicio();
 				} catch (SQLException e1) {
