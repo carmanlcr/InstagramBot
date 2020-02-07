@@ -29,11 +29,12 @@ public class User implements Model{
 	private int categories_id;
 	private int sim_card_number;
 	private int vpn_id;
-	private boolean activo;
+	private boolean active;
 	private static Conexion conn = new Conexion();
 	private Date date = new Date();
-	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-	private String created = dateFormat.format(date);
+	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private String created_at;
+	private String updated_at;
 	
 	
 	public String[] getUser() throws SQLException{
@@ -117,11 +118,14 @@ public class User implements Model{
 		
 	}
 	
-	public void insert() {
-		
+	public void insert() throws SQLException {
+		date = new Date();
+		setCreated_at(dateFormat.format(date));
+		setUpdated_at(dateFormat.format(date));
 		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(username,email,full_name,phone,password,creator,date_of_birth,created,sim_card_number,vpn_id)"
-					+ " VALUES (?, ?, ?,?, ?, ? , ?, ?, ?,?);";
+			String insert = "INSERT INTO "+TABLE_NAME+"(username,email,full_name,phone,password,"
+					+ "creator,date_of_birth,created_at,updated_at,sim_card_number,vpn_id)"
+					+ " VALUES (?,?,?,?,?, ?,?,?,?,?,?);";
 			PreparedStatement exe = conexion.prepareStatement(insert);
 			exe.setString(1, getUsername());
 			exe.setString(2, getEmail());
@@ -130,9 +134,10 @@ public class User implements Model{
 			exe.setString(5, getPassword());
 			exe.setString(6, getCreator());
 			exe.setString(7, getDate_of_birth());
-			exe.setString(8, getCreated());
-			exe.setInt(9, getSim_card_number());
-			exe.setInt(10, getVpn_id());
+			exe.setString(8, getCreated_at());
+			exe.setString(9, getUpdated_at());
+			exe.setInt(10, getSim_card_number());
+			exe.setInt(11, getVpn_id());
 			
 			exe.executeUpdate();
 			
@@ -323,15 +328,25 @@ public class User implements Model{
 
 
 
-	public String getCreated() {
-		return created;
+	public String getCreated_at() {
+		return created_at;
 	}
 
 
-
-	public void setCreated(String created) {
-		this.created = created;
+	public void setCreated_at(String created_at) {
+		this.created_at = created_at;
 	}
+
+
+	public String getUpdated_at() {
+		return updated_at;
+	}
+
+
+	public void setUpdated_at(String updated_at) {
+		this.updated_at = updated_at;
+	}
+
 
 
 
@@ -357,12 +372,12 @@ public class User implements Model{
 		this.vpn_id = vpn_id;
 	}
 	
-	public boolean isActivo() {
-		return activo;
+	public boolean isActive() {
+		return active;
 	}
 
-	public void setActivo(boolean activo) {
-		this.activo = activo;
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 
 	
