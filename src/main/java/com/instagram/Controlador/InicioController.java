@@ -8,12 +8,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import org.sikuli.script.FindFailed;
+import org.sikuli.script.Screen;
 
 import com.instagram.Model.*;
 
@@ -22,6 +26,7 @@ import com.instagram.Model.*;
 public class InicioController {
 	
 	private final String PAGE = "www.instagram.com";
+	private final String PATH_IMAGES_SIKULI = "C:\\ImagenesSikuli\\";
 	private Post post1 = new Post();
 	private static String[] user;
 	private static User users;
@@ -31,6 +36,7 @@ public class InicioController {
 	private static List<List<String>> checkBoxHashTag = new ArrayList<List<String>>();
 	private static List<JComboBox<String>> comboBoxGenere = new ArrayList<JComboBox<String>>();
 	private List<JTextField> listUsers = new ArrayList<JTextField>();
+	private int idUser;
 	private int categoria_id;
 	private int idGenere;
 	private int usuariosAProcesar = 1;
@@ -38,21 +44,23 @@ public class InicioController {
 	private int count = 0;
 	private boolean banderaVpn = false; 
 	private boolean banderaToggle = true;
-	
+	private Screen screen;
 	@SuppressWarnings("static-access")
 	public InicioController(int categoria_id, List<JCheckBox> listCheckBoxUsersSend, List<JTextArea> listTextARea,
 			List<List<String>> listChechBoxSelected, List<JTextField> listTextFieldUser,
-			List<JComboBox<String>> listJComboBoxGenere) {
+			List<JComboBox<String>> listJComboBoxGenere, Screen screen) {
 		this.categoria_id = categoria_id;
 		this.usuarios = listCheckBoxUsersSend;
 		this.pieDeFoto = (ArrayList<JTextArea>) listTextARea;
 		this.checkBoxHashTag = listChechBoxSelected;
 		this.listUsers = listTextFieldUser;
 		this.comboBoxGenere = listJComboBoxGenere;
+		this.screen = screen;
+
 	}
 
 
-	public void init() throws InterruptedException, AWTException, SQLException, IOException {
+	public void init() throws InterruptedException, AWTException, SQLException, IOException, FindFailed {
 		count = comboBoxGenere.size() - 1;
 		
 		for (JCheckBox jCheckBox : usuarios) {
@@ -61,7 +69,7 @@ public class InicioController {
 			users.setUsername(jCheckBox.getText());
 			users.setEmail(jCheckBox.getText());
 			user = users.getUser();
-			
+			idUser = Integer.parseInt(user[0]);
 			Post post = new Post();
 			post.setUsers_id(Integer.parseInt(user[0]));
 			int idlistTask = post.getLastsTasktPublic();
@@ -76,11 +84,9 @@ public class InicioController {
 				vpn.iniciarVpn(user[4], banderaVpn);
 				String ipActual = validateIP();
 				
-				
-				
 				System.out.println(usuariosAProcesar+" usuario(s) de "+usuarios.size()+" usuario(s)");
 				//Valida si la vpn conecto
-				if(ip.equals(ipActual)) {
+				if(ip.equals(ipActual)) {	
 					System.err.println("El usuario "+user[1]+ " no se puedo conectar a la vpn");
 					usuariosAProcesar++;
 				}else {
@@ -91,32 +97,37 @@ public class InicioController {
 					robot.maximizar();
 					//Escribir la pagina a ingresar
 					robot.inputWrite(PAGE);
-					//Darle enter para ir a la pagina
+					//Darle enter parawww ir a la pagina
 					robot.enter();
 					Thread.sleep(getNumberRandomForSecond(12540, 14150));
 					//Cambiar a developer
 					robot.changeDeveloper(banderaToggle);
+					Thread.sleep(getNumberRandomForSecond(1540, 2150));
+					if(screen.exists(PATH_IMAGES_SIKULI+"instagram_install.png") != null) {
+						robot.dimensions(633, 519);
+						Thread.sleep(getNumberRandomForSecond(540, 650));
+						robot.clickPressed();
+					}else {
+						robot.dimensions(633, 494);
+						Thread.sleep(getNumberRandomForSecond(540, 650));
+						robot.clickPressed();
+					}
 					
-					Thread.sleep(getNumberRandomForSecond(1254, 1984));
-					//Darle click a entrar
-					System.out.println("Darle click a entrar");
-					robot.dimensions(633,529);
-					Thread.sleep(856);
-					robot.clickPressed();
-					
-					Thread.sleep(getNumberRandomForSecond(1254, 1984));
-					
+					Thread.sleep(getNumberRandomForSecond(2254, 3984));
+
 					System.out.println("*********************"+user[1]+"***********************");
-					IniciaSesion sesion = new IniciaSesion(user[1],user[3]);
+					IniciaSesion sesion = new IniciaSesion(user[1],user[3],screen);
 					sesion.init();
 					
 					
 					//Esperar que cargue la pagina para que cargue el dom completamente
 					Thread.sleep(getNumberRandomForSecond(5250, 5650)); 
-					
-					startProgram(idlistTask);
-						
-					
+					robot.changeDeveloper(banderaToggle);
+					Thread.sleep(getNumberRandomForSecond(1250, 1650)); 
+					if(!blockUser()) {
+						startProgram(idlistTask);
+					}
+
 					//Desconectar la vpn para el siguiente usuario
 					usuariosAProcesar++;
 					robot.close();
@@ -134,13 +145,36 @@ public class InicioController {
 	}//Fin del init
 	
 	/**
+	 * 
+	 * 
+	 */
+	private boolean blockUser() {
+		
+		if(screen.exists("C:\\ImagenesSikuli\\validate-block1.png") != null) {
+			userBlock("Confirma que eres tu para iniciar sesion");
+			return true;
+		}else if(screen.exists("C:\\ImagenesSikuli\\validate-block2.png") != null) {
+			userBlock("Intento de inicio de sesion sospechoso");
+			return true;
+		}else if(screen.exists("C:\\ImagenesSikuli\\validate-block3.png") != null) {
+			userBlock("Intento de inicio de sesion sospechoso");
+			return true;
+		}else if(screen.exists("C:\\ImagenesSikuli\\validate-block4.png") != null) {
+			userBlock("Intento de inicio de sesion sospechoso");
+			return true;
+		}
+		
+		return false;
+	}
+	/**
 	 * Inico del proceso de instagram luego que el inicio de sesi�n sea exitoso
 	 * @param idlistTask 
 	 * 
 	 * @throws InterruptedException
 	 * @throws SQLException
+	 * @throws FindFailed 
 	 */
-	private void startProgram(int idlistTask) throws InterruptedException, SQLException {
+	private void startProgram(int idlistTask) throws InterruptedException, SQLException, FindFailed {
 		
 			
 		System.out.println("Usuario logueado");
@@ -148,7 +182,7 @@ public class InicioController {
 		Thread.sleep(getNumberRandomForSecond(1265, 1658));
 		robot.clickPressed();
 		
-		robot.changeDeveloper(banderaToggle);
+		
 		scrollDown(34);
 		scrollUp(34);
 		
@@ -170,12 +204,12 @@ public class InicioController {
 		System.out.println("Se cerro la sesion del usuario "+user[1]);
 	}
 	
-	private void random(List<Integer> listTask, int taskModel_Id) throws InterruptedException, SQLException {
+	private void random(List<Integer> listTask, int taskModel_Id) throws InterruptedException, SQLException, FindFailed {
 		int valueScroll = (int) (Math.random() * 15) + 1;
 		int taskModelId = taskModel_Id;
 		for(Integer li : listTask) {
-//			li = 5;
-			switch (li) {
+//			li = 7;
+			switch(li) {
 				case 1:
 					//Publicar Historia
 					/*uploadStory();
@@ -200,6 +234,8 @@ public class InicioController {
 				case 6:
 					//Publicacion normal
 					uploadImage();
+				case 7:
+					followUsers();
 				default:
 					break;
 			}	
@@ -220,15 +256,20 @@ public class InicioController {
 	}
 
 	
-	private String uploadImageFinal(String pie, String usuario) throws InterruptedException, SQLException {
+	private String uploadImageFinal(String pie, String usuario) throws InterruptedException, SQLException, FindFailed {
 		int value = (int) (Math.random() * 100000) + 1;
 		int dimensionx = (int) (Math.random() * 3) + 0;
 		int dimensiony = (int) (Math.random() * 5) + 0;
 		//630,957
 		System.out.println("Abrir el selector de imagenes");
-		robot.dimensions(630, 957);
-		Thread.sleep(getNumberRandomForSecond(256, 985));
-		robot.clickPressed();
+		
+		if(screen.exists(PATH_IMAGES_SIKULI+"add-images.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"add-images.png");
+		}else {
+			robot.dimensions(630, 957);
+			Thread.sleep(getNumberRandomForSecond(256, 985));
+			robot.clickPressed();
+		}
 		Thread.sleep(getNumberRandomForSecond(3548, 4572));
 		//Ponerse para cambiar el tipo de archivo
 		robot.dimensions(500, 919);
@@ -333,7 +374,7 @@ public class InicioController {
 		robot.clickPressed();
 		Thread.sleep(getNumberRandomForSecond(2489, 3549));
 		
-		robot.inputWrite(fraseRandom.getPhrase()+" "+pie+" "+hash+" ",usuario);
+		robot.inputWriteUsers(fraseRandom.getPhrase()+" "+pie+" "+hash+" ",usuario);
 //		inputWritePieDeFoto("_472V_",fraseRandom.getPhrase()+""+pie+" "+hash,usuario);
 		Thread.sleep(getNumberRandomForSecond(1489, 1549));
 		//1215,134
@@ -349,7 +390,7 @@ public class InicioController {
 		return hash;
 	}
 	
-	private static void uploadImage() throws InterruptedException, SQLException {
+	private void uploadImage() throws InterruptedException, SQLException, FindFailed {
 		Categories ca = new Categories();
 		List<String> la = ca.getSubCategorieConcat();
 		if(la.size() < 1) {
@@ -357,9 +398,13 @@ public class InicioController {
 			int dimensionx = (int) (Math.random() * 3) + 0;
 			int dimensiony = (int) (Math.random() * 5) + 0;
 			System.out.println("Abrir el selector de imagenes");
-			robot.dimensions(630, 957);
-			Thread.sleep(getNumberRandomForSecond(256, 985));
-			robot.clickPressed();
+			if(screen.exists(PATH_IMAGES_SIKULI+"add-images.png") != null) {
+				screen.click(PATH_IMAGES_SIKULI+"add-images.png");
+			}else {
+				robot.dimensions(630, 957);
+				Thread.sleep(getNumberRandomForSecond(256, 985));
+				robot.clickPressed();
+			}
 			Thread.sleep(getNumberRandomForSecond(3548, 4572));
 			
 			//Darle click a la carpeta imagenes
@@ -460,25 +505,38 @@ public class InicioController {
 	 * 
 	 * Pulsa el bot�n de retornar 
 	 * @throws InterruptedException 
+	 * @throws FindFailed 
 	 * 
 	 */
-	private void returnHome() throws InterruptedException {
+	private void returnHome() throws InterruptedException, FindFailed {
 		System.out.println("Retornar al inicio");
-		robot.dimensions(123, 968);
-		Thread.sleep(getNumberRandomForSecond(952, 1099));
-		robot.clickPressed();
+		
+		if(screen.exists(PATH_IMAGES_SIKULI+"home.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"home.png");
+		}else if(screen.exists(PATH_IMAGES_SIKULI+"home1.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"home1.png");
+		}else {
+			robot.dimensions(123, 968);
+			Thread.sleep(getNumberRandomForSecond(152, 899));
+			robot.clickPressed();
+		}
+		Thread.sleep(getNumberRandomForSecond(1952, 2099));
 		System.out.println("Volvio al inicio");
 		
 		scrollDown(154);
 		scrollUp(154);
 	}
 	
-	private void reviewNotifications() throws InterruptedException {
+	private void reviewNotifications() throws InterruptedException, FindFailed {
 		System.out.println("REVISAR LAS NOTIFICACIONES");
 		System.out.println("Ingreso en las notificaciones");
-		robot.dimensions(889, 966);
-		Thread.sleep(getNumberRandomForSecond(847, 898));
-		robot.clickPressed();
+		if(screen.exists(PATH_IMAGES_SIKULI+"notifications.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"notifications.png");
+		}else {
+			robot.dimensions(889, 966);
+			Thread.sleep(getNumberRandomForSecond(847, 898));
+			robot.clickPressed();
+		}
 		Thread.sleep(getNumberRandomForSecond(3001, 3099));
 		//Hacer scroll en las notificaciones
 		System.out.println("Hacer Scrool en notificaciones");
@@ -489,25 +547,36 @@ public class InicioController {
 		returnHome();
 	}
 	
-	private void reviewMessage() throws InterruptedException {
+	private void reviewMessage() throws InterruptedException, FindFailed {
 		System.out.println("REVISAR LOS MENSAJES");
-		robot.dimensions(1242, 125);
-		Thread.sleep(getNumberRandomForSecond(689, 897));
-		robot.clickPressed();
-		Thread.sleep(getNumberRandomForSecond(689, 759));
+		if(screen.exists(PATH_IMAGES_SIKULI+"message.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"message.png");
+		}else {
+			robot.dimensions(1242, 125);
+			Thread.sleep(getNumberRandomForSecond(689, 897));
+			robot.clickPressed();
+		}
+		Thread.sleep(getNumberRandomForSecond(1689, 1759));
 		
 		System.out.println("Hacer scroll en los mensajes");
 		scrollDown(30);
 		scrollUp(30);
 		Thread.sleep(getNumberRandomForSecond(1254, 1267));
+		robot.pressEsc();
 		//Volver al inicio
 		System.out.println("Volver al inicio");
-		robot.dimensions(36, 131);
-		Thread.sleep(getNumberRandomForSecond(689, 759));
-		robot.clickPressed();
+		
+		if(screen.exists(PATH_IMAGES_SIKULI+"back-message.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"back-message.png");
+		}else {
+			robot.dimensions(36, 131);
+			Thread.sleep(getNumberRandomForSecond(689, 759));
+			robot.clickPressed();
+		}
+		Thread.sleep(getNumberRandomForSecond(1952, 2099));
 	}
 		
-	private void publicFinal(int taskModelId) throws InterruptedException, SQLException {
+	private void publicFinal(int taskModelId) throws InterruptedException, SQLException, FindFailed {
 		System.out.println("PUBLICACION DE: "+listUsers.get(ini).getText());
 		String hash = uploadImageFinal(pieDeFoto.get(ini).getText(),listUsers.get(ini).getText());
 		
@@ -523,7 +592,7 @@ public class InicioController {
 		System.out.println("El usuario publico correctamente");
 	}
 	
-	private void registerPost(int taskModelId, String hash) throws SQLException, InterruptedException {
+	private void registerPost(int taskModelId, String hash) throws SQLException, InterruptedException, FindFailed {
 		post1.setUsers_id(Integer.parseInt(user[0]));
 		post1.setCategories_id(Integer.parseInt(user[6]));
 		post1.setTasks_model_id(taskModelId);
@@ -595,7 +664,7 @@ public class InicioController {
 		}
 		return false;
 	}
-	private void perfilLike(int valueScroll) throws InterruptedException, SQLException {
+	private void perfilLike(int valueScroll) throws InterruptedException, SQLException, FindFailed {
 		System.out.println("ENTRAR EN PERFIL Y DAR LIKE!");
 		Account_Instagram_User acount = new Account_Instagram_User();
 		acount.setUsers_id(Integer.parseInt(user[0]));
@@ -619,9 +688,13 @@ public class InicioController {
 			
 			//808,722
 			//Darle click a like
-			robot.dimensions(808, 722);
-			Thread.sleep(getNumberRandomForSecond(256, 895));
-			robot.clickPressed();
+			if(screen.exists(PATH_IMAGES_SIKULI+"like.png") != null) {
+				screen.click(PATH_IMAGES_SIKULI+"like.png");
+			}else {
+				robot.dimensions(808, 722);
+				Thread.sleep(getNumberRandomForSecond(256, 895));
+				robot.clickPressed();
+			}
 			Thread.sleep(getNumberRandomForSecond(1654, 2095));
 			
 			robot.pressEsc();
@@ -636,20 +709,28 @@ public class InicioController {
 		returnHome();
 	}
 	
-	private static boolean searchUser(Account_Instagram account) throws InterruptedException {
+	private boolean searchUser(Account_Instagram account) throws InterruptedException, FindFailed {
 		System.out.println("Ingresar a buscar usuario");
 		//Darle click al boton de search
-		robot.dimensions(385, 965);
-		Thread.sleep(getNumberRandomForSecond(264, 658));
-		robot.clickPressed();
+		if(screen.exists(PATH_IMAGES_SIKULI+"search.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"search.png");
+		}else {
+			robot.dimensions(385, 965);
+			Thread.sleep(getNumberRandomForSecond(264, 658));
+			robot.clickPressed();
+		}
 		Thread.sleep(getNumberRandomForSecond(2264, 2658));
 		
 		System.out.println("Darle al boton de buscar usuario");
 		
 		//Darle clic al input donde se escribe 
-		robot.dimensions(645, 131);
-		Thread.sleep(getNumberRandomForSecond(264, 658));
-		robot.clickPressed();
+		if(screen.exists(PATH_IMAGES_SIKULI+"search-text.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"search-text.png");
+		}else {
+			robot.dimensions(645, 131);
+			Thread.sleep(getNumberRandomForSecond(264, 658));
+			robot.clickPressed();
+		}
 		Thread.sleep(getNumberRandomForSecond(2264, 2658));
 		
 		System.out.println("Escribiendo en el cuadro de texto");
@@ -670,13 +751,17 @@ public class InicioController {
 	}
 	
 	
-	private static void follow(Account_Instagram account) throws InterruptedException {
+	private void follow(Account_Instagram account) throws InterruptedException, FindFailed {
 		//Ponerse en el boton de seguir
 		//908,234
 		System.out.println("Pulsar el boton de seguir");
-		robot.dimensions(908, 234);
-		Thread.sleep(getNumberRandomForSecond(289, 645));
-		robot.clickPressed();
+		if(screen.exists(PATH_IMAGES_SIKULI+"follow-user.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"follow-user.png");
+		}else {
+			robot.dimensions(908, 234);
+			Thread.sleep(getNumberRandomForSecond(289, 645));
+			robot.clickPressed();
+		}
 		Thread.sleep(getNumberRandomForSecond(2456, 3215));
 		
 		Account_Instagram_User aco = new Account_Instagram_User();
@@ -691,110 +776,121 @@ public class InicioController {
 		
 	}
 	
-	private void sesionClose() throws InterruptedException {
+	private void sesionClose() throws InterruptedException, FindFailed {
 		Thread.sleep(getNumberRandomForSecond(2002, 2065));
 		//Ir a mi perfil
 		System.out.println("Ir al perfil del usuario");		
 		//1142 , 967
-		robot.dimensions(1142, 967);
-		Thread.sleep(getNumberRandomForSecond(254, 621));
-		robot.clickPressed();
+		if(screen.exists(PATH_IMAGES_SIKULI+"profile.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"profile.png");
+		}else {
+			robot.dimensions(1142, 967);
+			Thread.sleep(getNumberRandomForSecond(254, 621));
+			robot.clickPressed();
+		}
 		Thread.sleep(getNumberRandomForSecond(3001, 3099));
-		
-//			35,131
 		
 		//Darle click a la barra de opciones
 		System.out.println("Darle a la barra de opciones");
-		robot.dimensions(35, 131);
-		Thread.sleep(getNumberRandomForSecond(254, 621));
-		robot.clickPressed();
+		if(screen.exists(PATH_IMAGES_SIKULI+"option.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"option.png");
+		}else {
+			robot.dimensions(35, 131);
+			Thread.sleep(getNumberRandomForSecond(254, 621));
+			robot.clickPressed();
+		}
 		Thread.sleep(getNumberRandomForSecond(2001, 3099));
 		System.out.println("Darle a Cerrar Sesion");
-		//67,898
-		robot.dimensions(67, 904);
-		Thread.sleep(getNumberRandomForSecond(254, 621));
-		robot.clickPressed();
+		if(screen.exists(PATH_IMAGES_SIKULI+"close-session.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"close-session.png");
+		}else {
+			robot.dimensions(67, 904);
+			Thread.sleep(getNumberRandomForSecond(254, 621));
+			robot.clickPressed();
+		}
 		Thread.sleep(getNumberRandomForSecond(2001, 3099));
 		
 		//642,580
-		robot.dimensions(642, 580);
-		Thread.sleep(getNumberRandomForSecond(254, 621));
-		robot.clickPressed();
-		Thread.sleep(getNumberRandomForSecond(2001, 3099));
+		if(screen.exists(PATH_IMAGES_SIKULI+"exit.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"exit.png");
+		}else {
+			robot.dimensions(642, 580);
+			Thread.sleep(getNumberRandomForSecond(254, 621));
+			robot.clickPressed();
+		}
+		Thread.sleep(getNumberRandomForSecond(3001, 4099));
 	}
   
 	
-	/*private void uploadStory() throws InterruptedException {
-		int value = (int) (Math.random() * 100000) + 1;
-		int dimensionx = (int) (Math.random() * 3) + 0;
-		int dimensiony = (int) (Math.random() * 5) + 0;
-		clickButton("/html/body/span/section/main/section/div[1]/div/div/div/div[1]/button", "xPath");
-		Thread.sleep(getNumberRandomForSecond(4250, 4863));
-		//Darle click a la carpeta imagenes
-		RobotClick click = new RobotClick();
-		click.maxiIzquierda();
-		Thread.sleep(getNumberRandomForSecond(2001, 2099));
-		click.dimensions(300, 47);
-		//Hacer click
-		click.clickPressed();
-		Thread.sleep(getNumberRandomForSecond(1502, 1539));
-		
-		Categories ca = new Categories();
-		List<String> la;
-		Path_Photo pathP = new Path_Photo();
-		try {
-			la = ca.getSubCategorieConcat();
-			int cate_id = Integer.parseInt(la.get(0));
-			int subCate_id = Integer.parseInt(la.get(2));
-			pathP.setCategories_id(cate_id);
-			pathP.setSub_categories_id(subCate_id);
-		} catch (SQLException e) {
-			e.printStackTrace();
+	private void followUsers() throws InterruptedException, FindFailed {
+		System.out.println("Ingresar a buscar hashtag");
+
+		if(screen.exists(PATH_IMAGES_SIKULI+"search.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"search.png");
+		}else {
+			robot.dimensions(385, 965);
+			Thread.sleep(getNumberRandomForSecond(264, 658));
+			robot.clickPressed();
 		}
+		Thread.sleep(getNumberRandomForSecond(2264, 2658));
 		
+		System.out.println("Darle al boton de buscar");
 		
-		robot.copy(pathP.getPathPhotos());
-		
-		Thread.sleep(getNumberRandomForSecond(720, 853));
-		click.paste();
-		Thread.sleep(getNumberRandomForSecond(720, 854));
-		click.enter();
+		//Darle clic al input donde se escribe 
+		if(screen.exists(PATH_IMAGES_SIKULI+"search-text.png") != null) {
+			screen.click(PATH_IMAGES_SIKULI+"search-text.png");
+		}else {
+			robot.dimensions(645, 131);
+			Thread.sleep(getNumberRandomForSecond(264, 658));
+			robot.clickPressed();
+		}
+		Thread.sleep(getNumberRandomForSecond(2264, 2658));
+
+		System.out.println("Escribiendo en el cuadro de texto");
+		//Escribir en el input
+		String[] hashtag = {"#followforfollow","#followback","#followme","#follow4follow","#FollowPyramid","#TEAMFOLLOWBACK",
+				"#SiguemeYTeSigo","#F4F"};
+		robot.inputWrite(hashtag[getNumberRandomForSecond(0, hashtag.length-1)]);
+		Thread.sleep(getNumberRandomForSecond(3198, 4245));
+		robot.enter();
+		robot.enter();
+		Thread.sleep(getNumberRandomForSecond(4198, 5245));
+		selectPhotoAndFollow();
+	}
+	
+	private void selectPhotoAndFollow() throws InterruptedException, FindFailed {
+		for(int i = 1; i <=15; i++) {
+			//Click a la primera foto
+			robot.pressTab();
+			Thread.sleep(getNumberRandomForSecond(125, 214));
+			robot.pressTab();
+			Thread.sleep(getNumberRandomForSecond(125, 214));
+			for(int j = 0; j < i; j++) {
+				robot.pressTab();
+				Thread.sleep(getNumberRandomForSecond(125, 214));
+			}
+			robot.enter();
+			Thread.sleep(getNumberRandomForSecond(4125, 4214));
+			if(screen.exists("C:\\ImagenesSikuli\\follow.png") != null) {
+				screen.click("C:\\ImagenesSikuli\\follow.png");
+				Thread.sleep(getNumberRandomForSecond(125, 214));
+			}
+			robot.pressEsc();
+			Thread.sleep(getNumberRandomForSecond(725, 814));
 			
-		Thread.sleep(getNumberRandomForSecond(2001, 2098));
-		
-		click.dimensions(220, 180);
-		click.clickPressed();
-		for(int i = 0; i <= value;i++) {
-			click.mouseScroll(1);
+			
 		}
 		
-		int[] arrayx = new int[4];
-		int[] arrayy = new int[6];
-		arrayx[0] = 220;
-		arrayx[1] = 330;
-		arrayx[2] = 440;
-		arrayx[3] = 540;
-		arrayy[0] = 180;
-		arrayy[1] = 280;
-		arrayy[2] = 420;
-		arrayy[3] = 540;
-		arrayy[4] = 680;
-		arrayy[5] = 810;
-		Thread.sleep(getNumberRandomForSecond(2001, 2099));
-		click.dimensions(arrayx[dimensionx], arrayy[dimensiony]);
-		//Hacer doble click
-		click.clickPressed();
-		click.clickPressed();
-		
-		Thread.sleep(getNumberRandomForSecond(2982, 3504));
-		
-		while(searchElement(1, "/html/body/span/section/footer/div/div/button") == 0);
-		
-		clickButton("/html/body/span/section/footer/div/div/button", "xPath");
-		Thread.sleep(getNumberRandomForSecond(7583, 8753));
-	}*/
+	}
 	
-	
+	private void userBlock(String name) {
+		User_Block userB = new User_Block();
+		userB.setUsers_id(idUser);
+		userB.setComentario(name);
+		if (userB.getIdUser() == 0) {
+			userB.insert();
+		}
+	}
 	
 	private String validateIP() {
 		
@@ -824,7 +920,7 @@ public class InicioController {
 	}
 	
 	private static int getNumberRandomForSecond(int init, int fin) {
-		return (int) (Math.random() * init) + fin; 
+		return ThreadLocalRandom.current().nextInt(init, fin + 1); 
 	}
 	
 

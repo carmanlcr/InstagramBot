@@ -9,6 +9,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import org.sikuli.script.FindFailed;
+import org.sikuli.script.Screen;
+
 import com.instagram.Controlador.InicioController;
 import com.instagram.Model.*;
 
@@ -68,7 +71,7 @@ public class Ejecucion extends JFrame {
 	private static JCheckBox check ;
 	private int totalUser = 0;
 	private Categories categories = new Categories();
-	
+	private Screen screen;
 	
 	/**
 	 * Launch the application.
@@ -77,7 +80,7 @@ public class Ejecucion extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Ejecucion frame = new Ejecucion(categoria_id);
+					Ejecucion frame = new Ejecucion(categoria_id,screen);
 					frame.setTitle(categories.getNameCategories(categoria_id));
 					frame.setVisible(true);
 					
@@ -91,11 +94,13 @@ public class Ejecucion extends JFrame {
 
 	/**
 	 * Create the frame.
+	 * @param s 
 	 * @throws SQLException 
 	 */
-	public Ejecucion(int id) throws SQLException {
+	public Ejecucion(int id, Screen s) throws SQLException {
 		setTitle("Validacion");
 		this.categoria_id = id;
+		this.screen = s;
 		setResizable(false);
 		setBounds(100, 100, 665, 733);
 		contentPane = new JPanel();
@@ -149,20 +154,23 @@ public class Ejecucion extends JFrame {
 				} else if(listTextARea.size() == 0) {
 					JOptionPane.showMessageDialog(null,"Debe escribir al menos un pie para la foto");
 				}else {
-					InicioController init = new InicioController(categoria_id,listCheckBoxUsersSend, listTextARea,listChechBoxSelected,listTextFieldUser,listJComboBoxGenere);
+					final InicioController init = new InicioController(categoria_id,listCheckBoxUsersSend, listTextARea,listChechBoxSelected,listTextFieldUser,listJComboBoxGenere,screen);
 					setExtendedState(ICONIFIED);
-					try {
-						init.init();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}catch(AWTException e1) {
-						e1.printStackTrace();
-					}catch(SQLException e2) {
-						e2.printStackTrace();
-					}catch(IOException e3) {
-						e3.printStackTrace();
-					}
-					
+					new Thread(new Runnable() {
+							
+						@Override
+						public void run() {
+							try {
+
+								init.init();
+
+							} catch (InterruptedException | AWTException | SQLException | IOException | FindFailed e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							
+						}
+				   }).start();
 				}
 				
 				
