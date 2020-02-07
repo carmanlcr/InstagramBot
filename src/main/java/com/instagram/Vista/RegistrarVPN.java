@@ -29,7 +29,7 @@ public class RegistrarVPN extends JFrame {
 	 */
 	private static final long serialVersionUID = -5448326576339838922L;
 	private JPanel contentPane;
-	private JTextField textField;
+	private JTextField textField = new JTextField();
 
 	/**
 	 * Launch the application.
@@ -54,13 +54,12 @@ public class RegistrarVPN extends JFrame {
 		setTitle("Registrar VPN");
 		setBounds(100, 100, 450, 222);
 		contentPane = new JPanel();
-		contentPane.setBackground(new Color(255, 255, 255));
+		contentPane.setBackground(Color.LIGHT_GRAY);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		JLabel lblNombreDeVpn = new JLabel("Nombre de VPN");
 		lblNombreDeVpn.setFont(new Font("Arial", Font.PLAIN, 12));
 		
-		textField = new JTextField();
 		textField.setColumns(10);
 		
 		JButton btnRegistrar = new JButton("Registrar");
