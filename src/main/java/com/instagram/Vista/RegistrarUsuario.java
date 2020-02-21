@@ -10,6 +10,8 @@ import javax.swing.border.EmptyBorder;
 import com.instagram.Model.Categories;
 import com.instagram.Model.User;
 import com.instagram.Model.Vpn;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLDataException;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -21,9 +23,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JComboBox;
@@ -36,20 +39,20 @@ public class RegistrarUsuario extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField NameField;
-	private JTextField usernameField;
-	private JTextField emailField;
-	private JTextField telefonoField;
-	private JTextField passwordField;
-	private JTextField creadorField;
-	private JTextField fdnField;
-	private JTextField simCardField;
+	private JTextField NameField = new JTextField();
+	private JTextField usernameField = new JTextField();
+	private JTextField emailField = new JTextField() ;
+	private JTextField telefonoField = new JTextField();
+	private JTextField passwordField = new JTextField();
+	private JTextField creadorField = new JTextField();
+	private JTextField fdnField = new JTextField();
+	private JTextField simCardField = new JTextField();
 	private Vpn v = new Vpn();
-	private Map<Integer,String> vpn = v.getAllActive();
-	private JComboBox<String> comboBoxvPN = setComboBoxVpn(vpn);
+	private Map<String,Integer> vpn = new HashMap<String, Integer>();
+	private JComboBox<String> comboBoxVpn = new JComboBox<String>();
 	private Categories cate = new Categories();
-	private List<String> list = cate.getAllActive();
-	private JComboBox<String> comboBoxCategori = setComboBoxCategorias(list);
+	private HashMap<String, Integer> hashCatego = new HashMap<String, Integer>();
+	private JComboBox<String> comboBoxCategori = new JComboBox<String>();
 	private JButton btnRegistrar = new JButton("Registrar");
 	private RegistrarUsuario frame;
 	
@@ -84,6 +87,15 @@ public class RegistrarUsuario extends JFrame {
 		
 		JLabel labelName = new JLabel("Nombre Completo");
 		labelName.setFont(new Font("Arial", Font.PLAIN, 12));
+		
+		hashCatego = cate.getComboBox();
+		SortedSet<String> keys = new TreeSet<>(hashCatego.keySet());
+		comboBoxCategori = setComboBoxCategorias(keys);
+		
+		vpn = v.getAllVpn();
+		SortedSet<String> keysV = new TreeSet<>(vpn.keySet());
+		comboBoxVpn =  setComboBoxVpn(keysV);
+		
 		
 		NameField = new JTextField();
 		NameField.setColumns(10);
@@ -192,7 +204,7 @@ public class RegistrarUsuario extends JFrame {
 										.addComponent(fdnField)
 										.addComponent(creadorField, GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
 										.addComponent(simCardField)
-										.addComponent(comboBoxvPN, GroupLayout.PREFERRED_SIZE, 141, GroupLayout.PREFERRED_SIZE)
+										.addComponent(comboBoxVpn, GroupLayout.PREFERRED_SIZE, 141, GroupLayout.PREFERRED_SIZE)
 										.addComponent(comboBoxCategori))))
 							.addPreferredGap(ComponentPlacement.UNRELATED)
 							.addComponent(lblyyyymmdd)
@@ -240,7 +252,7 @@ public class RegistrarUsuario extends JFrame {
 						.addComponent(simCardField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGap(39)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-						.addComponent(comboBoxvPN, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(comboBoxVpn, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(lblVpn))
 					.addGap(22)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
@@ -256,20 +268,19 @@ public class RegistrarUsuario extends JFrame {
 	}
 	
 
-	private JComboBox<String> setComboBoxVpn(final Map<Integer, String> map) {
-		comboBoxvPN = new JComboBox<String>();
+	private JComboBox<String> setComboBoxVpn(final SortedSet<String> keysV) {
+		comboBoxVpn = new JComboBox<String>();
 		
-		for (Entry<Integer, String> jugador : map.entrySet()){
-			String valor = jugador.getValue();
-			comboBoxvPN.addItem(valor);
+		for (String st : keysV){
+			comboBoxVpn.addItem(st);
 		}
-	    return comboBoxvPN;
+	    return comboBoxVpn;
 	}
 	
-	private JComboBox<String> setComboBoxCategorias(List<String> map) {
+	private JComboBox<String> setComboBoxCategorias(SortedSet<String> keys) {
 		comboBoxCategori = new JComboBox<String>();
 		
-		for (String string : map) {
+		for (String string : keys) {
 			comboBoxCategori.addItem(string);
 		}
 	    return comboBoxCategori;
@@ -279,13 +290,9 @@ public class RegistrarUsuario extends JFrame {
 		btnRegistrar.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
-				String nameVpn = (String) comboBoxvPN.getSelectedItem();
-				int id = 0;
-				try {
-					id = v.getFind(nameVpn);
-				} catch (SQLException e2) {
-					e2.printStackTrace();
-				}
+				
+				int id = Integer.parseInt(vpn.get(comboBoxVpn.getSelectedItem().toString()).toString());
+
 				BigInteger telefono = new BigInteger(telefonoField.getText().trim());
 				if(id == 0) {
 					JOptionPane.showMessageDialog(null,"Debe seleccionar una VPN");
@@ -300,21 +307,30 @@ public class RegistrarUsuario extends JFrame {
 					usuario.setDate_of_birth(fdnField.getText().trim());
 					usuario.setSim_card_number(Integer.parseInt(simCardField.getText().trim()));
 					usuario.setVpn_id(id);
-					usuario.setCategories_id(comboBoxCategori.getSelectedIndex()+1);
+					usuario.setCategories_id(Integer.parseInt(hashCatego.get(comboBoxCategori.getSelectedItem().toString()).toString()));
 					contentPane.setEnabled(false);
-					usuario.insert();
-					JOptionPane.showMessageDialog(null,"Usuario agregado con exito");
-					NameField.setText("");
-					NameField.setFocusable(true);
-					telefonoField.setText("");
-					usernameField.setText("");
-					emailField.setText("");
-					passwordField.setText("");
-					creadorField.setText("");
-					fdnField.setText("");
-					simCardField.setText("");
-					comboBoxvPN.setSelectedIndex(0);
-					comboBoxCategori.setSelectedIndex(0);
+					try {
+						usuario.insert();
+						JOptionPane.showMessageDialog(null,"Usuario agregado con exito");
+						NameField.setText("");
+						NameField.setFocusable(true);
+						telefonoField.setText("");
+						usernameField.setText("");
+						emailField.setText("");
+						passwordField.setText("");
+						creadorField.setText("");
+						fdnField.setText("");
+						simCardField.setText("");
+						comboBoxVpn.setSelectedIndex(0);
+						comboBoxCategori.setSelectedIndex(0);
+					} catch (MySQLDataException e1) {
+						JOptionPane.showMessageDialog(null, "Hay error en uno de los datos ingresados, por favor validar","Failed",JOptionPane.ERROR_MESSAGE);
+					}catch (MySQLIntegrityConstraintViolationException e2) {
+						JOptionPane.showMessageDialog(null, "Usuario o correo repetido, por favor validar","Failed",JOptionPane.ERROR_MESSAGE);
+					}catch (SQLException e2) {
+						JOptionPane.showMessageDialog(null, "Error al ingresar usuario, por favor validar los campos","Failed",JOptionPane.ERROR_MESSAGE);
+					}
+					
 				}
 				
 			}

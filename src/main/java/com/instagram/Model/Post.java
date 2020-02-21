@@ -22,10 +22,12 @@ public class Post implements Model{
 	private int categories_id;
 	private int tasks_model_id;
 	private int phrases_id;
+	private int tasks_grid_id;
 	private String link_publication;
 	private String user_transmition;
 	private String link_instagram;
-	private String created; 
+	private String created_at;
+	private String updated_at;
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	private DateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd");
@@ -35,23 +37,25 @@ public class Post implements Model{
 	ResultSet rs;
 
 	public void insert() {
-		setCreated(dateFormat.format(date));
-		
+		date = new Date();
+		setCreated_at(dateFormat.format(date));
+		setUpdated_at(dateFormat.format(date));
 		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+""
-					+ "(users_id,categories_id,tasks_model_id,phrases_id,link_publication,user_transmition,link_instagram,created_at) "
-					+ " VALUE (?,?,?,?,?,?,?,?);";
+			String insert = "INSERT INTO "+TABLE_NAME+" "
+					+ "(users_id,categories_id,tasks_model_id,phrases_id,tasks_grid_id,link_publication,user_transmition,link_instagram,created_at,updated_at) "
+					+ " VALUE (?,?,?,?,?,?,?,?,?,?);";
 			
 			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(insert);
 			query.setInt(1, getUsers_id());
 			query.setInt(2, getCategories_id());
 			query.setInt(3, getTasks_model_id());
 			query.setInt(4, getPhrases_id());
-			query.setString(5, getLink_publcation());
-			query.setString(6, getUser_transmition());
-			query.setString(7, getLink_instagram());
-			query.setString(8, getCreated());
-			
+			query.setInt(5, getTasks_grid_id());
+			query.setString(6, getLink_publcation());
+			query.setString(7, getUser_transmition());
+			query.setString(8, getLink_instagram());
+			query.setString(9, getCreated_at());
+			query.setString(10, getUpdated_at());
 			query.executeUpdate();
 			
 			conexion.close();
@@ -143,13 +147,7 @@ public class Post implements Model{
 		this.categories_id = categories_id;
 	}
 
-	public String getCreated() {
-		return created;
-	}
 
-	public void setCreated(String created) {
-		this.created = created;
-	}
 
 	public int getUsers_id() {
 		return users_id;
@@ -183,6 +181,22 @@ public class Post implements Model{
 		this.phrases_id = phrases_id;
 	}
 
+	public int getTasks_grid_id() {
+		return tasks_grid_id;
+	}
+
+	public void setTasks_grid_id(int tasks_grid_id) {
+		this.tasks_grid_id = tasks_grid_id;
+	}
+
+	public String getLink_publication() {
+		return link_publication;
+	}
+
+	public void setLink_publication(String link_publication) {
+		this.link_publication = link_publication;
+	}
+
 	public String getLink_publcation() {
 		return link_publication;
 	}
@@ -205,6 +219,22 @@ public class Post implements Model{
 
 	public void setLink_instagram(String link_instagram) {
 		this.link_instagram = link_instagram;
+	}
+
+	public String getCreated_at() {
+		return created_at;
+	}
+
+	public void setCreated_at(String created_at) {
+		this.created_at = created_at;
+	}
+
+	public String getUpdated_at() {
+		return updated_at;
+	}
+
+	public void setUpdated_at(String updated_at) {
+		this.updated_at = updated_at;
 	}
 	
 }

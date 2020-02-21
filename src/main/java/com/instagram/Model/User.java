@@ -19,6 +19,7 @@ import com.instagram.Interface.Model;
 public class User implements Model{
 	
 	private final String TABLE_NAME = "users";	
+	private int users_id;
 	private String username;
 	private String email;
 	private String full_name;
@@ -26,6 +27,7 @@ public class User implements Model{
 	private String password;
 	private String creator;
 	private String date_of_birth;
+	private boolean isBlock;
 	private int categories_id;
 	private int sim_card_number;
 	private int vpn_id;
@@ -37,35 +39,35 @@ public class User implements Model{
 	private String updated_at;
 	
 	
-	public String[] getUser() throws SQLException{
-		String[] list = null;
-		String query = "SELECT * FROM "+TABLE_NAME+" us "
-				+ "INNER JOIN vpn vp ON vp.vpn_id = us.vpn_id "
-				+ "INNER JOIN users_categories uc ON uc.users_id = us.users_id "
-				+ "INNER JOIN categories ca ON ca.categories_id = uc.categories_id "
-				+ "WHERE us.email = '"+getEmail()+"' OR us.username= '"+getUsername()+"';";
+	public User getUser() throws SQLException{
+		User user = null;
+		String query = "SELECT u.users_id, u.username, u.email, u.full_name, u.phone, "
+				+ "u.password, u.creator, u.date_of_birth, u.active, u.sim_card_number, "
+				+ "u.vpn_id, IFNULL(ub.users_block_id,0) as user_blo_null "
+				+ "FROM "+TABLE_NAME+" u "
+				+ "LEFT JOIN users_block ub ON ub.users_id = u.users_id AND ub.active = 1 "
+				+ "WHERE u.email = '"+getEmail()+"' OR u.username= '"+getUsername()+"';";
 		try (Connection conexion = conn.conectar();
 				Statement st = conexion.createStatement();
-					ResultSet rs = st.executeQuery(query);){
-			
-			list = new String[8];
+				ResultSet rs = st.executeQuery(query);){
 			while (rs.next() ) {
-               list[0] =  rs.getString("us.users_id");
-               list[1] = rs.getString("us.username");
-               list[2] = rs.getString("us.phone");
-               list[3] = rs.getString("us.password");
-               list[4] = rs.getString("vp.name");
-               list[5] = rs.getString("us.email");
-               list[6] = rs.getString("uc.categories_id");
-               list[7] = rs.getString("ca.name");
-               
+               user = new User();
+               user.setUsers_id(rs.getInt("u.users_id"));
+               user.setUsername(rs.getString("u.username"));
+               user.setPassword(rs.getString("u.password"));
+               user.setVpn_id(rs.getInt("u.vpn_id"));
+               user.setEmail(rs.getString("u.email"));
+               user.setActive(rs.getBoolean("u.active"));
+               user.setCreator(rs.getString("u.creator"));
+               boolean block = rs.getInt("user_blo_null")  == 0 ? false : true; 
+               user.setBlock(block);
 			}
 			
 		}catch(Exception e) {
 			System.err.println(e);
 		}
 		
-		return list;
+		return user;
  	}
 	
 	
@@ -175,40 +177,28 @@ public class User implements Model{
 		
 	}
 	
-	public List<String[]> getUserCategorie(int id) throws SQLException{
-		String[] list ;
-		ArrayList<String[]> lista = new ArrayList<String[]>();
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT us.users_id,us.username,us.phone,us.password,vp.name,us.email,uc.categories_id,ub.users_block_id, count(*) as canpost ");
-		query.append("FROM "+TABLE_NAME+" us ");
-		query.append("INNER JOIN vpn vp ON vp.vpn_id = us.vpn_id ");
-		query.append("INNER JOIN users_categories uc ON uc.users_id = us.users_id ");
-		query.append("LEFT JOIN users_block ub ON ub.users_id = us.users_id AND ub.active = 1 ");
-		query.append("LEFT JOIN posts po ON po.users_id = us.users_id AND po.created_at BETWEEN ");
-		query.append("'"+dateFormat.format(date) + " 00:00:00' AND '"+dateFormat.format(date) + " 23:59:59' ");
-		query.append("WHERE uc.categories_id = "+id+" ");
-		query.append("GROUP BY us.users_id,us.username,us.phone,us.password,vp.name,us.email,uc.categories_id,ub.users_block_id;");
-
-		
-		int io = 0;
+	public List<String> getUserCategorieAndGenere(int id, int id_genere) throws SQLException{
+		ArrayList<String> lista = new ArrayList<String>();
+		dateFormat = new SimpleDateFormat("yyy-MM-dd");
+		String query = "SELECT u.username FROM tasks_grid tg " + 
+				"INNER JOIN tasks_grid_detail tgd ON tg.tasks_grid_id = tgd.tasks_grid_id " + 
+				"INNER JOIN "+TABLE_NAME+" u ON u.users_id = tgd.users_id " + 
+				"WHERE tgd.users_id NOT IN (SELECT pt.users_id FROM posts pt WHERE DATE(pt.created_at) = ? AND pt.tasks_grid_id = tg.tasks_grid_id) " + 
+				"AND tg.categories_id = ? AND tg.generes_id = ? AND tg.active = ? AND DATE(tg.date_publication) = ? " + 
+				"ORDER BY tg.date_publication ASC;";
+		date = new Date();
 		try (Connection conexion = conn.conectar();
-				Statement st = conexion.createStatement();
-					ResultSet rs = st.executeQuery(query.toString())){
-			
+				PreparedStatement pre = conexion.prepareStatement(query);){
+			pre.setString(1, dateFormat.format(date));
+			pre.setInt(2, id);
+			pre.setInt(3, id_genere);
+			pre.setInt(4, 1);
+			pre.setString(5, dateFormat.format(date));
+			ResultSet rs = pre.executeQuery();
 			while (rs.next() ) {
-			   list = new String[9];
-               list[0] = rs.getString("us.users_id");
-               list[1] = rs.getString("us.username");
-               list[2] = rs.getString("us.phone");
-               list[3] = rs.getString("us.password");
-               list[4] = rs.getString("vp.name");
-               list[5] = rs.getString("us.email");
-               list[6] = rs.getString("uc.categories_id");
-               list[7] = rs.getString("ub.users_block_id");
-               list[8] = rs.getString("canpost");
-               lista.add(io, list);
-               io++;
+				lista.add(rs.getString("u.username"));
 			}
+			
 		}catch(Exception e) {
 			System.err.println(e);
 		}
@@ -235,6 +225,16 @@ public class User implements Model{
 		}
 		return list;
 	}
+
+	public int getUsers_id() {
+		return users_id;
+	}
+
+
+	public void setUsers_id(int users_id) {
+		this.users_id = users_id;
+	}
+
 
 	public String getUsername() {
 		return username;
@@ -378,6 +378,16 @@ public class User implements Model{
 
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+
+
+	public boolean isBlock() {
+		return isBlock;
+	}
+
+
+	public void setBlock(boolean isBlock) {
+		this.isBlock = isBlock;
 	}
 
 	

@@ -2,24 +2,34 @@ package com.instagram.Controlador;
 
 import java.awt.AWTException;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import org.sikuli.script.FindFailed;
 import org.sikuli.script.Screen;
 
-import com.instagram.Model.*;
+import com.instagram.Model.Account_Instagram;
+import com.instagram.Model.Account_Instagram_User;
+import com.instagram.Model.Categories;
+import com.instagram.Model.Path_Photo;
+import com.instagram.Model.Phrases;
+import com.instagram.Model.Post;
+import com.instagram.Model.Task_Grid;
+import com.instagram.Model.Task_Model_Detail;
+import com.instagram.Model.User;
+import com.instagram.Model.User_Block;
+import com.instagram.Model.Vpn;
+
+import Controller.VpnController;
 
 
 
@@ -27,122 +37,135 @@ public class InicioController {
 	
 	private final String PAGE = "www.instagram.com";
 	private final String PATH_IMAGES_SIKULI = "C:\\ImagenesSikuli\\";
-	private Post post1 = new Post();
-	private static String[] user;
+	protected final static String PATH_IMAGES_SFTP = "C:\\imagesSftp\\";
 	private static User users;
 	private static RobotController robot;
-	private List<JCheckBox> usuarios;
-	private ArrayList<JTextArea> pieDeFoto = new ArrayList<JTextArea>();
-	private static List<List<String>> checkBoxHashTag = new ArrayList<List<String>>();
-	private static List<JComboBox<String>> comboBoxGenere = new ArrayList<JComboBox<String>>();
-	private List<JTextField> listUsers = new ArrayList<JTextField>();
+	private List<String> listCheckBoxUsers = new ArrayList<String>();
 	private int idUser;
 	private int categoria_id;
-	private int idGenere;
-	private int usuariosAProcesar = 1;
-	private int ini = 0;
-	private int count = 0;
-	private boolean banderaVpn = false; 
+	private int tasks_grid_id;
+	private String phrase;
+	private String image;
+	private boolean isPublication;
+	private Post po = new Post();
 	private boolean banderaToggle = true;
 	private Screen screen;
-	@SuppressWarnings("static-access")
-	public InicioController(int categoria_id, List<JCheckBox> listCheckBoxUsersSend, List<JTextArea> listTextARea,
-			List<List<String>> listChechBoxSelected, List<JTextField> listTextFieldUser,
-			List<JComboBox<String>> listJComboBoxGenere, Screen screen) {
-		this.categoria_id = categoria_id;
-		this.usuarios = listCheckBoxUsersSend;
-		this.pieDeFoto = (ArrayList<JTextArea>) listTextARea;
-		this.checkBoxHashTag = listChechBoxSelected;
-		this.listUsers = listTextFieldUser;
-		this.comboBoxGenere = listJComboBoxGenere;
-		this.screen = screen;
+	private Date date = new Date();
+	private SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+	public InicioController(int categoria_id, List<String> listCheckBoxUsers, Screen screen) {
+		this.listCheckBoxUsers = listCheckBoxUsers;
+		this.categoria_id = categoria_id;
+		this.screen = screen;
 	}
 
 
 	public void init() throws InterruptedException, AWTException, SQLException, IOException, FindFailed {
-		count = comboBoxGenere.size() - 1;
-		
-		for (JCheckBox jCheckBox : usuarios) {
-			
-			users = new User();
-			users.setUsername(jCheckBox.getText());
-			users.setEmail(jCheckBox.getText());
-			user = users.getUser();
-			idUser = Integer.parseInt(user[0]);
-			Post post = new Post();
-			post.setUsers_id(Integer.parseInt(user[0]));
-			int idlistTask = post.getLastsTasktPublic();
-			
-			if(idlistTask == 0) {
-				System.out.println("El usuario no tiene mas tareas por publicar");
-			}else {
-				robot = new RobotController();
-				
-				String ip = validateIP();
-				VpnController vpn = new VpnController(robot);
-				vpn.iniciarVpn(user[4], banderaVpn);
-				String ipActual = validateIP();
-				
-				System.out.println(usuariosAProcesar+" usuario(s) de "+usuarios.size()+" usuario(s)");
-				//Valida si la vpn conecto
-				if(ip.equals(ipActual)) {	
-					System.err.println("El usuario "+user[1]+ " no se puedo conectar a la vpn");
-					usuariosAProcesar++;
-				}else {
-					//Lanzamiento de la pagina   
-					robot.openChromeIncognit();
-				    Thread.sleep(getNumberRandomForSecond(5540, 7150));
-				    //Maximizar Chrome
-					robot.maximizar();
-					//Escribir la pagina a ingresar
-					robot.inputWrite(PAGE);
-					//Darle enter parawww ir a la pagina
-					robot.enter();
-					Thread.sleep(getNumberRandomForSecond(12540, 14150));
-					//Cambiar a developer
-					robot.changeDeveloper(banderaToggle);
-					Thread.sleep(getNumberRandomForSecond(1540, 2150));
-					if(screen.exists(PATH_IMAGES_SIKULI+"instagram_install.png") != null) {
-						robot.dimensions(633, 519);
-						Thread.sleep(getNumberRandomForSecond(540, 650));
-						robot.clickPressed();
-					}else {
-						robot.dimensions(633, 494);
-						Thread.sleep(getNumberRandomForSecond(540, 650));
-						robot.clickPressed();
-					}
+		int usuariosAProcesar = 0;
+		Task_Grid taskG = new Task_Grid();
+		taskG.setCategories_id(this.categoria_id);
+		List<Task_Grid> listTask = taskG.getTaskGridToday();
+		if(listTask.size() < 1) {
+			JOptionPane.showMessageDialog(null, "Ya no quedan tareas para hoy");
+		}else {
+			for(String str : listCheckBoxUsers) {
+				users = new User();
+				users.setUsername(str);
+				users.setEmail(str);
+				users = users.getUser();
+				if(!users.isBlock()) {
+					idUser = users.getUsers_id();
+					po.setUsers_id(idUser);
+					taskG = taskG.getTaskForUser(idUser);
 					
-					Thread.sleep(getNumberRandomForSecond(2254, 3984));
+					if(taskG != null) {
+						String dateCu = simpleFormat.format(date);
+						while(dateCu.compareTo(taskG.getDate_publication()) < 0) {
+							Thread.sleep(5000);
+							date = new Date();
+							dateCu = simpleFormat.format(date);
+						}
+						
+						phrase = taskG.getPhrase();
+						image = taskG.getImage();
+						isPublication = taskG.isPublication();
+						tasks_grid_id = taskG.getTasks_grid_id();
+						
+						int idlistTask = po.getLastsTasktPublic();
+						
+						if(idlistTask == 0) {
+							System.out.println("El usuario no tiene mas tareas por publicar");
+						}else {
+							robot = new RobotController();
+							
+							String ip = validateIP();
+							
+							Vpn v = new Vpn();
+							v.setVpn_id(users.getVpn_id());
+							v = v.getVpn();
+							VpnController vpn = new VpnController(v.getName());
+							vpn.connectVpn();
+							String ipActual = validateIP();
+							
+							System.out.println(usuariosAProcesar+" usuario(s) de "+listCheckBoxUsers.size()+" usuario(s)");
+							//Valida si la vpn conecto
+							if(ip.equals(ipActual)) {	
+								System.err.println("El usuario "+users.getUsername()+ " no se puedo conectar a la vpn");
+								usuariosAProcesar++;
+							}else {
+								//Lanzamiento de la pagina   
+								robot.openChromeIncognit();
+							    Thread.sleep(getNumberRandomForSecond(5540, 7150));
+							    //Maximizar Chrome
+								robot.maximizar();
+								//Escribir la pagina a ingresar
+								robot.inputWrite(PAGE);
+								//Darle enter parawww ir a la pagina
+								robot.enter();
+								Thread.sleep(getNumberRandomForSecond(12540, 14150));
+								//Cambiar a developer
+								robot.changeDeveloper(banderaToggle);
+								Thread.sleep(getNumberRandomForSecond(1540, 2150));
+								if(screen.exists(PATH_IMAGES_SIKULI+"instagram_install.png") != null) {
+									robot.dimensions(633, 519);
+									Thread.sleep(getNumberRandomForSecond(540, 650));
+									robot.clickPressed();
+								}else {
+									robot.dimensions(633, 494);
+									Thread.sleep(getNumberRandomForSecond(540, 650));
+									robot.clickPressed();
+								}
+								
+								Thread.sleep(getNumberRandomForSecond(2254, 3984));
 
-					System.out.println("*********************"+user[1]+"***********************");
-					IniciaSesion sesion = new IniciaSesion(user[1],user[3],screen);
-					sesion.init();
-					
-					
-					//Esperar que cargue la pagina para que cargue el dom completamente
-					Thread.sleep(getNumberRandomForSecond(5250, 5650)); 
-					robot.changeDeveloper(banderaToggle);
-					Thread.sleep(getNumberRandomForSecond(1250, 1650)); 
-					if(!blockUser()) {
-						startProgram(idlistTask);
-					}
+								System.out.println("*********************"+users.getUsername()+"***********************");
+								IniciaSesion sesion = new IniciaSesion(users.getUsername(),users.getPassword(),screen);
+								sesion.init();
+								
+								
+								//Esperar que cargue la pagina para que cargue el dom completamente
+								Thread.sleep(getNumberRandomForSecond(5250, 5650)); 
+								robot.changeDeveloper(banderaToggle);
+								Thread.sleep(getNumberRandomForSecond(1250, 1650)); 
+								if(!blockUser()) {
+									startProgram(idlistTask);
+								}
 
-					//Desconectar la vpn para el siguiente usuario
-					usuariosAProcesar++;
-					robot.close();
-					vpn.desconectVpn();
-					banderaVpn = true;
-					banderaToggle = false;
-					Thread.sleep(getNumberRandomForSecond(1999, 2125));
-				}//Fin del if
+								//Desconectar la vpn para el siguiente usuario
+								usuariosAProcesar++;
+								robot.close();
+								vpn.disconnectVpn();
+								banderaToggle = false;
+								Thread.sleep(getNumberRandomForSecond(1999, 2125));
+							}
+						}
+					}
+				}
 			}
-			
-				
-		}//Fin del for
-			System.out.println("Finalizo con exito el programa");
-			System.exit(1);
-	}//Fin del init
+		}//Fin del init
+		System.out.println("Finalizo con exito el programa");
+		System.exit(1);
+	}
 	
 	/**
 	 * 
@@ -173,8 +196,9 @@ public class InicioController {
 	 * @throws InterruptedException
 	 * @throws SQLException
 	 * @throws FindFailed 
+	 * @throws IOException 
 	 */
-	private void startProgram(int idlistTask) throws InterruptedException, SQLException, FindFailed {
+	private void startProgram(int idlistTask) throws InterruptedException, SQLException, FindFailed, IOException {
 		
 			
 		System.out.println("Usuario logueado");
@@ -201,10 +225,10 @@ public class InicioController {
 		sesionClose();
 		
 		
-		System.out.println("Se cerro la sesion del usuario "+user[1]);
+		System.out.println("Se cerro la sesion del usuario "+users.getUsername());
 	}
 	
-	private void random(List<Integer> listTask, int taskModel_Id) throws InterruptedException, SQLException, FindFailed {
+	private void random(List<Integer> listTask, int taskModel_Id) throws InterruptedException, SQLException, FindFailed, IOException {
 		int valueScroll = (int) (Math.random() * 15) + 1;
 		int taskModelId = taskModel_Id;
 		for(Integer li : listTask) {
@@ -225,7 +249,11 @@ public class InicioController {
 					break;
 				case 4:
 					//Publicacion final
-					publicFinal(taskModelId);
+					if(isPublication) {
+						SftpController sftp = new SftpController();
+						sftp.downloadFileSftp(image);
+						publicFinal(taskModelId);
+					}
 					break;
 				case 5:
 					//Entrar en perfil y dar like
@@ -256,11 +284,7 @@ public class InicioController {
 	}
 
 	
-	private String uploadImageFinal(String pie, String usuario) throws InterruptedException, SQLException, FindFailed {
-		int value = (int) (Math.random() * 100000) + 1;
-		int dimensionx = (int) (Math.random() * 3) + 0;
-		int dimensiony = (int) (Math.random() * 5) + 0;
-		//630,957
+	private void uploadImageFinal() throws InterruptedException, SQLException, FindFailed, IOException {
 		System.out.println("Abrir el selector de imagenes");
 		
 		if(screen.exists(PATH_IMAGES_SIKULI+"add-images.png") != null) {
@@ -281,16 +305,7 @@ public class InicioController {
 		Thread.sleep(getNumberRandomForSecond(256, 985));
 		robot.clickPressed();
 		Thread.sleep(getNumberRandomForSecond(1048, 1572));
-		String user = (String) comboBoxGenere.get(ini).getSelectedItem();
-		Genere gene = new Genere();
-		gene.setName(user);
-		idGenere = gene.getIdGenere();
-		System.out.println("Buscar direccion de fotos");
-		Path_Photo pa_ph = new Path_Photo();
-		pa_ph.setCategories_id(categoria_id);
-		pa_ph.setGeneres_id(idGenere);
-		String path = pa_ph.getPathPhotos();
-		System.out.println("La direccion seleccionada es "+path);
+
 		Thread.sleep(getNumberRandomForSecond(2250, 3863));
 		//Darle click a la carpeta imagenes
 		RobotController click = new RobotController();
@@ -301,7 +316,7 @@ public class InicioController {
 		click.clickPressed();
 		System.out.println("presionar para cambiar la direccion de busqueada");
 		Thread.sleep(getNumberRandomForSecond(1502, 1539));
-		click.copy(path);
+		click.copy(PATH_IMAGES_SFTP);
 		Thread.sleep(getNumberRandomForSecond(720, 853));
 		click.paste();
 		Thread.sleep(getNumberRandomForSecond(720, 854));
@@ -311,30 +326,11 @@ public class InicioController {
 				
 		click.dimensions(220, 180);
 		click.clickPressed();
-		for(int i = 0; i <= value;i++) {
-			click.mouseScroll(1);
-		}
-		System.out.println("Elegir una foto de manera aleatoria");
-		int[] arrayx = new int[4];
-		int[] arrayy = new int[6];
-		arrayx[0] = 220;
-		arrayx[1] = 330;
-		arrayx[2] = 440;
-		arrayx[3] = 540;
-		arrayy[0] = 180;
-		arrayy[1] = 280;
-		arrayy[2] = 420;
-		arrayy[3] = 540;
-		arrayy[4] = 680;
-		arrayy[5] = 810;
-		Thread.sleep(getNumberRandomForSecond(2001, 2099));
-		click.dimensions(arrayx[dimensionx], arrayy[dimensiony]);
-		//Hacer doble click
 		click.clickPressed();
-		click.clickPressed();
-		System.out.println("Seleccionar foto");
 		
-		//1215,132
+		System.out.println("Eliminar foto");
+		File archivo1 = new File(PATH_IMAGES_SFTP+image);
+		archivo1.delete();
 		
 		
 		Thread.sleep(2000); 
@@ -343,39 +339,15 @@ public class InicioController {
 		Thread.sleep(getNumberRandomForSecond(478, 896));
 		robot.clickPressed();
 		Thread.sleep(getNumberRandomForSecond(2489, 3549));
-		//Escribir pie de foto
-		Phrases frase = new Phrases();
-		frase.setCategories_id(categoria_id);
-		frase.setGeneres_id(idGenere);
-		
-		Phrases fraseRandom = frase.getPhraseRandom();
-		System.out.println("Encontrar frase");
-		post1.setPhrases_id(fraseRandom.getPhrases_id());
-		post1.setLink_publcation(pie);
-		post1.setUser_transmition(usuario);
-		List<String> copia = checkBoxHashTag.get(ini);
-		String hash = "";
+
 	    
-		if (copia.size() > 2) {
-			Collections.shuffle(copia);
-			
-			hash += copia.get(0) +  " ";
-			hash += copia.get(1) +  " ";
-			hash += copia.get(2) +  " ";
-			
-		} else if (copia.size() > 0 && copia.size() < 2) {
-			Collections.shuffle(copia);
-			
-			hash += copia.get(0) +  " ";
-		}
 		//234, 192
 		robot.dimensions(234, 192);
 		Thread.sleep(getNumberRandomForSecond(478, 896));
 		robot.clickPressed();
 		Thread.sleep(getNumberRandomForSecond(2489, 3549));
 		
-		robot.inputWriteUsers(fraseRandom.getPhrase()+" "+pie+" "+hash+" ",usuario);
-//		inputWritePieDeFoto("_472V_",fraseRandom.getPhrase()+""+pie+" "+hash,usuario);
+		robot.inputWriteUsers(phrase);
 		Thread.sleep(getNumberRandomForSecond(1489, 1549));
 		//1215,134
 		
@@ -384,10 +356,8 @@ public class InicioController {
 		robot.clickPressed();
 		System.out.println("El usuario hizo la publicaci�n correctamente.");
 		
-		Thread.sleep(getNumberRandomForSecond(8001, 10099));
-										
+		Thread.sleep(getNumberRandomForSecond(8001, 10099));								
 		
-		return hash;
 	}
 	
 	private void uploadImage() throws InterruptedException, SQLException, FindFailed {
@@ -576,26 +546,24 @@ public class InicioController {
 		Thread.sleep(getNumberRandomForSecond(1952, 2099));
 	}
 		
-	private void publicFinal(int taskModelId) throws InterruptedException, SQLException, FindFailed {
-		System.out.println("PUBLICACION DE: "+listUsers.get(ini).getText());
-		String hash = uploadImageFinal(pieDeFoto.get(ini).getText(),listUsers.get(ini).getText());
+	private void publicFinal(int taskModelId) throws InterruptedException, SQLException, FindFailed, IOException {
+		System.out.println("PUBLICACION FINAL");
+		uploadImageFinal();
 		
 		Thread.sleep(getNumberRandomForSecond(1001, 2558));
-		ini++;
 
-		if(ini > count) {
-			ini = 0;
-		}
 		
-		registerPost(taskModelId, hash);
+		registerPost(taskModelId);
 		returnHome();
 		System.out.println("El usuario publico correctamente");
 	}
 	
-	private void registerPost(int taskModelId, String hash) throws SQLException, InterruptedException, FindFailed {
-		post1.setUsers_id(Integer.parseInt(user[0]));
-		post1.setCategories_id(Integer.parseInt(user[6]));
-		post1.setTasks_model_id(taskModelId);
+	private void registerPost(int taskModelId) throws SQLException, InterruptedException, FindFailed {
+		po.setUsers_id(users.getUsers_id());
+		po.setCategories_id(categoria_id);
+		po.setTasks_model_id(taskModelId);
+		po.setTasks_grid_id(tasks_grid_id);
+		po.setPhrases_id(0);
 
 		//Ir al perfil del usuario
 		robot.dimensions(1142, 967);
@@ -630,26 +598,13 @@ public class InicioController {
 		
 		run.start();
 		String link_instagram = JOptionPane.showInputDialog("PRESIONAR ctrl+v Y PULSE ACEPTAR");
-		robot.pressEsc();
 		
-		post1.setLink_instagram(link_instagram);
-		if(post1.getLink_instagram() == null 
+		po.setLink_instagram(link_instagram);
+		if(po.getLink_instagram() == null 
 				|| !validateUrl(link_instagram)) {
 			System.out.println("No se agragará el post ya que no hay link para agregar");
 		}else {
-			post1.insert();
-			
-			String[] hashT = hash.split(" ");
-			
-			Post_Detail postDe = new Post_Detail();
-			postDe.setPosts_id(post1.getLast());
-			HashTag has = new HashTag();
-			
-			for(int i = 0;i < hashT.length; i++) {
-				has.setName(hashT[i]);
-				postDe.setHashtag_id(has.getIdCategorieHashTag());
-				postDe.insert();
-			}
+			po.insert();
 		}
 		returnHome();
 		
@@ -667,7 +622,7 @@ public class InicioController {
 	private void perfilLike(int valueScroll) throws InterruptedException, SQLException, FindFailed {
 		System.out.println("ENTRAR EN PERFIL Y DAR LIKE!");
 		Account_Instagram_User acount = new Account_Instagram_User();
-		acount.setUsers_id(Integer.parseInt(user[0]));
+		acount.setUsers_id(users.getUsers_id());
 		Account_Instagram acInsta = acount.getAccountsFollowUser();
 		//Buscar usuario
 		if(acInsta != null && searchUser(acInsta)) {
@@ -765,7 +720,7 @@ public class InicioController {
 		Thread.sleep(getNumberRandomForSecond(2456, 3215));
 		
 		Account_Instagram_User aco = new Account_Instagram_User();
-		aco.setUsers_id(Integer.parseInt(user[0]));
+		aco.setUsers_id(users.getUsers_id());
 		aco.setAccounts_instagram_id(account.getAccounts_instagram_id());
 		try {
 			aco.insert();

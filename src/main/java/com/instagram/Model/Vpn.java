@@ -5,8 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
 
 
 public class Vpn {
@@ -14,8 +18,37 @@ public class Vpn {
 	private final String TABLE_NAME = "vpn";
 	private int vpn_id;
 	private String name;
-	private boolean activo;
+	private boolean active;
+	private String created_at;
+	private String updated_at;
+	private Date date;
 	private static Conexion conn = new Conexion();
+	
+	
+	public Vpn getVpn() throws SQLException {
+		Vpn v = null;
+		String sql = "SELECT  * FROM "+TABLE_NAME+" WHERE vpn_id = ?;";
+		
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pre = conexion.prepareStatement(sql);){
+		
+			pre.setInt(1, getVpn_id());
+			
+			ResultSet rs = pre.executeQuery();
+			
+			if(rs.next()) {
+				v = new Vpn();
+				v.setVpn_id(rs.getInt("vpn_id"));
+				v.setName(rs.getString("name"));
+				v.setActive(rs.getBoolean("active"));
+			}
+		}catch (SQLException e) {
+			e.getStackTrace();
+		}
+		
+		return v;
+		
+	}
 	
 	public Map<Integer,String> getAllActive() throws SQLException {
 
@@ -133,11 +166,15 @@ public class Vpn {
 	public boolean insert() throws SQLException {
 		Statement st = null;
 		Connection conexion = conn.conectar();
+		date = new Date();
+		DateFormat formate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		setCreated_at(formate.format(date));
+		setUpdated_at(formate.format(date));
 		if(getNameVPN(getName()) == null) {
 			return false;
 		}else {
 			try {
-				String insert = "INSERT INTO vpn(name) VALUES ('"+getName()+"');";
+				String insert = "INSERT INTO vpn(name) VALUES ('"+getName()+"','"+getCreated_at()+"','"+getUpdated_at()+"');";
 				st = (Statement) conexion.createStatement();
 				st.executeUpdate(insert);
 				
@@ -193,13 +230,29 @@ public class Vpn {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	public boolean isActivo() {
-		return activo;
+
+	public boolean isActive() {
+		return active;
 	}
 
-	public void setActivo(boolean activo) {
-		this.activo = activo;
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public String getCreated_at() {
+		return created_at;
+	}
+
+	public void setCreated_at(String created_at) {
+		this.created_at = created_at;
+	}
+
+	public String getUpdated_at() {
+		return updated_at;
+	}
+
+	public void setUpdated_at(String updated_at) {
+		this.updated_at = updated_at;
 	}
 
 	
