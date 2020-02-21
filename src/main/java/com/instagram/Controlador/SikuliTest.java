@@ -2,6 +2,14 @@ package com.instagram.Controlador;
 
 import org.sikuli.script.Screen;
 
+/**
+ * 
+ * Se movio al proyecto Configurations 
+ * 
+ * @deprecated
+ * @author Luis Morales
+ *
+ */
 public class SikuliTest implements Runnable {
 	
 	private Screen screen;

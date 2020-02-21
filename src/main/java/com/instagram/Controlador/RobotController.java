@@ -580,18 +580,11 @@ public class RobotController {
 		}
 	}
 	
-	protected void inputWriteUsers(String inputData,String user) throws InterruptedException {
+	protected void inputWriteUsers(String inputData) throws InterruptedException {
 		RobotController rob = new RobotController();
 		for(int i=0;i<inputData.length();i++) {
 			Thread.sleep(164);
 			String caracterActual = inputData.substring(i,i+1);
-			if(caracterActual.equals("&")) {
-				for(int j=0; j<user.length();j++) {
-					Thread.sleep(164);
-					String caracter = user.substring(j,j+1);
-					rob.pressKey(caracter.charAt(0));
-				}
-			}
 			rob.pressKey(caracterActual.charAt(0));
 		}
 	}

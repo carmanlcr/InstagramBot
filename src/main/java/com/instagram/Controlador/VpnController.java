@@ -2,6 +2,12 @@ package com.instagram.Controlador;
 
 import java.io.IOException;
 
+/**
+ * Se movio al proyecto Configurations donde se maneja por comandos
+ * 
+ * @deprecated
+ * @author  Luis Morales
+ */
 
 public class VpnController {
 	private RobotController robot;
@@ -44,6 +50,14 @@ public class VpnController {
 				robot.pressTab();
 				Thread.sleep(256);
 			}else {
+				robot.pressTab();
+				Thread.sleep(256);
+				robot.pressTab();
+				Thread.sleep(256);
+				robot.pressTab();
+				Thread.sleep(256);
+				robot.pressTab();
+				Thread.sleep(256);
 				robot.pressTab();
 				Thread.sleep(256);
 				robot.pressTab();
