@@ -15,21 +15,26 @@ import com.instagram.Interface.Model;
 public class Task_Model implements Model {
 
 	private String name;
+	private boolean active;
 	private String created_at;
+	private String updated_at;
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	private static Conexion conn = new Conexion();
 	ResultSet rs;
 	
 	public void insert() throws SQLException {
+		date = new Date();
 		setCreated_at(dateFormat.format(date));
-		String insert = "INSERT INTO tasks_model(name,created_at) VALUE "
-				+ " (?,?);";
+		setUpdated_at(dateFormat.format(date));
+		String insert = "INSERT INTO tasks_model(name,created_at,updated_at) VALUE "
+				+ " (?,?,?);";
 		try (Connection conexion = conn.conectar();){
 			
 			PreparedStatement exe = conexion.prepareStatement(insert);
 			exe.setString(1, getName());
 			exe.setString(2, getCreated_at());
+			exe.setString(3, getUpdated_at());
 			exe.executeUpdate();
 		}catch(SQLException e) {
 			System.err.println(e);
@@ -81,12 +86,28 @@ public class Task_Model implements Model {
 		this.name = name;
 	}
 
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
 	public String getCreated_at() {
 		return created_at;
 	}
 
 	public void setCreated_at(String created_at) {
 		this.created_at = created_at;
+	}
+
+	public String getUpdated_at() {
+		return updated_at;
+	}
+
+	public void setUpdated_at(String updated_at) {
+		this.updated_at = updated_at;
 	}
 
 }

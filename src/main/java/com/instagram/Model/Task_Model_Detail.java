@@ -19,6 +19,7 @@ public class Task_Model_Detail implements Model {
 	private int tasks_model_id;
 	private int tasks_id;
 	private String created_at;
+	private String updated_at;
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	private static Conexion conn = new Conexion();
@@ -26,16 +27,18 @@ public class Task_Model_Detail implements Model {
 	ResultSet rs;
 	
 	public void insert() throws SQLException {
+		date = new Date();
 		setCreated_at(dateFormatDateTime.format(date));
-		String insert = "INSERT INTO tasks_model_detail(tasks_model_id,tasks_id,created_at) VALUE "
-				+ " (?,?,?);";
+		setUpdated_at(dateFormatDateTime.format(date));
+		String insert = "INSERT INTO tasks_model_detail(tasks_model_id,tasks_id,created_at,updated_at) VALUE "
+				+ " (?,?,?,?);";
 		try (Connection conexion = conn.conectar();){
 			
 			PreparedStatement exe = conexion.prepareStatement(insert);
 			exe.setInt(1, getTasks_model_id());
 			exe.setInt(2, getTasks_id());
 			exe.setString(3, getCreated_at());
-			
+			exe.setString(4, getUpdated_at());
 			exe.executeUpdate();
 		}catch(SQLException e) {
 			System.err.println(e);
@@ -84,6 +87,16 @@ public class Task_Model_Detail implements Model {
 
 	public void setCreated_at(String created_at) {
 		this.created_at = created_at;
+	}
+
+
+	public String getUpdated_at() {
+		return updated_at;
+	}
+
+
+	public void setUpdated_at(String updated_at) {
+		this.updated_at = updated_at;
 	}
 	
 	

@@ -7,9 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
 
 import com.instagram.Interface.Model;
 
@@ -19,6 +18,7 @@ public class Task implements Model{
 	private final String TABLE_NAME = "tasks";
 	private String name;
 	private String created_at;
+	private String updated_at;
 	private boolean active;
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
@@ -27,14 +27,16 @@ public class Task implements Model{
 	ResultSet rs;
 	
 	public void insert() throws SQLException {
-		
+		date = new Date();
 		setCreated_at(dateFormatDateTime.format(date));
+		setUpdated_at(dateFormatDateTime.format(date));
 		String insert = "INSERT INTO "+TABLE_NAME+"(name,created_at) VALUE "
-				+ " (?,?);";
+				+ " (?,?,?);";
 		try (Connection conexion = conn.conectar();){
 			PreparedStatement exe = conexion.prepareStatement(insert);
 			exe.setString(1, getName());
 			exe.setString(2, getCreated_at());
+			exe.setString(3, getUpdated_at());
 			exe.executeUpdate();
 		}catch(SQLException e) {
 			System.err.println(e);
@@ -42,18 +44,18 @@ public class Task implements Model{
 		
 	}
 
-	public List<String> getTasksActive(){
-		List<String> list = new ArrayList<String>();
+	public HashMap<String, Integer> getTasksActive(){
+		HashMap<String, Integer> list = new HashMap<String,Integer>();
 		
 		
-		String query = "SELECT t.name FROM "+TABLE_NAME+" t " + 
+		String query = "SELECT t.tasks_id,t.name FROM "+TABLE_NAME+" t " + 
 				"WHERE active = ?;"; 
 		try (Connection conexion = conn.conectar();){
 			PreparedStatement pst = conexion.prepareStatement(query);
 			pst.setInt(1, 1);
 			rs = pst.executeQuery();
 			while (rs.next() ) {
-				list.add(rs.getString("t.name"));
+				list.put(rs.getString("t.name"),rs.getInt("t.tasks_id"));
 			}
 		}catch(SQLException e) {
 			System.err.println(e);
@@ -76,6 +78,14 @@ public class Task implements Model{
 
 	public void setCreated_at(String created_at) {
 		this.created_at = created_at;
+	}
+
+	public String getUpdated_at() {
+		return updated_at;
+	}
+
+	public void setUpdated_at(String updated_at) {
+		this.updated_at = updated_at;
 	}
 
 	public boolean isActive() {
