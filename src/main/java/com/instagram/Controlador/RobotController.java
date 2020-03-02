@@ -7,7 +7,12 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 
-
+/**
+ * Se movio al proyecto Configurations
+ * 
+ * @author Luis Morales
+ * @deprecated
+ */
 public class RobotController {
 	
 	private static Robot robot;
