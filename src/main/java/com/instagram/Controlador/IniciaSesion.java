@@ -3,6 +3,7 @@ package com.instagram.Controlador;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.sikuli.script.FindFailed;
 import org.sikuli.script.Screen;
 
 public class IniciaSesion {
@@ -18,16 +19,14 @@ public class IniciaSesion {
 		this.screen = screen;
 	}
 	
-	public void init() throws InterruptedException {
+	public void init() throws InterruptedException, FindFailed {
 		System.out.println("Ir a la pagina de inicio de sesi�n");
 		//Insertar el usuario
 		Thread.sleep(getNumberRandomForSecond(1256, 1487));
 		robot = new RobotController();
-		if(screen.exists("C:\\ImagenesSikuli\\instagram_install.png") != null) {
-			//ponerse en el input de usuario
-			robot.dimensions(598, 580);
-			robot.clickPressed();
-			System.out.println("Escribir usuario");
+		if(screen.exists("C:\\ImagenesSikuli\\username-Instagram.png") != null) {
+			screen.click("C:\\ImagenesSikuli\\username-Instagram.png");
+			Thread.sleep(889);
 			robot.inputWrite(username);
 			//Insertar el password
 			Thread.sleep(getNumberRandomForSecond(465, 897));
@@ -40,22 +39,41 @@ public class IniciaSesion {
 			System.out.println("Pulsar iniciar sesion");
 			robot.enter();
 		}else {
-			//ponerse en el input de usuario
-			robot.dimensions(598, 560);
-			robot.clickPressed();
-			System.out.println("Escribir usuario");
-			robot.inputWrite(username);
-			//Insertar el password
-			Thread.sleep(getNumberRandomForSecond(465, 897));
-			System.out.println("Escribir contrasena");
-			robot.pressTab();
-			Thread.sleep(getNumberRandomForSecond(165, 297));
-			robot.inputWrite(password);
-			//Presionar boton de inicio de sesi�n
-			Thread.sleep(getNumberRandomForSecond(465, 689));
-			System.out.println("Pulsar iniciar sesion");
-			robot.enter();
+			if(screen.exists("C:\\ImagenesSikuli\\instagram_install.png") != null) {
+				//ponerse en el input de usuario
+				robot.dimensions(598, 580);
+				robot.clickPressed();
+				System.out.println("Escribir usuario");
+				robot.inputWrite(username);
+				//Insertar el password
+				Thread.sleep(getNumberRandomForSecond(465, 897));
+				System.out.println("Escribir contrasena");
+				robot.pressTab();
+				Thread.sleep(getNumberRandomForSecond(165, 297));
+				robot.inputWrite(password);
+				//Presionar boton de inicio de sesi�n
+				Thread.sleep(getNumberRandomForSecond(465, 898));
+				System.out.println("Pulsar iniciar sesion");
+				robot.enter();
+			}else {
+				//ponerse en el input de usuario
+				robot.dimensions(598, 560);
+				robot.clickPressed();
+				System.out.println("Escribir usuario");
+				robot.inputWrite(username);
+				//Insertar el password
+				Thread.sleep(getNumberRandomForSecond(465, 897));
+				System.out.println("Escribir contrasena");
+				robot.pressTab();
+				Thread.sleep(getNumberRandomForSecond(165, 297));
+				robot.inputWrite(password);
+				//Presionar boton de inicio de sesi�n
+				Thread.sleep(getNumberRandomForSecond(465, 689));
+				System.out.println("Pulsar iniciar sesion");
+				robot.enter();
+			}
 		}
+		
 		
 
 	}

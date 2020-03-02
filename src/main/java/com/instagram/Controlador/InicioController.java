@@ -39,7 +39,8 @@ public class InicioController {
 	private final String PATH_IMAGES_SIKULI = "C:\\ImagenesSikuli\\";
 	protected final static String PATH_IMAGES_SFTP = "C:\\imagesSftp\\";
 	private static User users;
-	private static RobotController robot;
+	private static Controller.RobotController robot;
+	private static Controller.VpnController vpn;
 	private List<String> listCheckBoxUsers = new ArrayList<String>();
 	private int idUser;
 	private int categoria_id;
@@ -69,6 +70,7 @@ public class InicioController {
 			JOptionPane.showMessageDialog(null, "Ya no quedan tareas para hoy");
 		}else {
 			for(String str : listCheckBoxUsers) {
+				vpn = null;
 				users = new User();
 				users.setUsername(str);
 				users.setEmail(str);
@@ -96,16 +98,17 @@ public class InicioController {
 						if(idlistTask == 0) {
 							System.out.println("El usuario no tiene mas tareas por publicar");
 						}else {
-							robot = new RobotController();
-							
+							robot = new Controller.RobotController();
 							String ip = validateIP();
-							
-							Vpn v = new Vpn();
-							v.setVpn_id(users.getVpn_id());
-							v = v.getVpn();
-							VpnController vpn = new VpnController(v.getName());
-							vpn.connectVpn();
-							String ipActual = validateIP();
+							String ipActual = "01.02.03.04";
+							if(users.getVpn_id() != 0) {
+								Vpn v = new Vpn();
+								v.setVpn_id(users.getVpn_id());
+								v = v.getVpn();
+								vpn = new VpnController(v.getName());
+								vpn.connectVpn();
+								ipActual = validateIP();
+							}
 							
 							System.out.println(usuariosAProcesar+" usuario(s) de "+listCheckBoxUsers.size()+" usuario(s)");
 							//Valida si la vpn conecto
@@ -126,14 +129,18 @@ public class InicioController {
 								//Cambiar a developer
 								robot.changeDeveloper(banderaToggle);
 								Thread.sleep(getNumberRandomForSecond(1540, 2150));
-								if(screen.exists(PATH_IMAGES_SIKULI+"instagram_install.png") != null) {
-									robot.dimensions(633, 519);
-									Thread.sleep(getNumberRandomForSecond(540, 650));
-									robot.clickPressed();
+								if(screen.exists(PATH_IMAGES_SIKULI+"entrar-Instagram.png") != null) {
+									screen.click(PATH_IMAGES_SIKULI+"entrar-Instagram.png");
 								}else {
-									robot.dimensions(633, 494);
-									Thread.sleep(getNumberRandomForSecond(540, 650));
-									robot.clickPressed();
+									if(screen.exists(PATH_IMAGES_SIKULI+"instagram_install.png") != null) {
+										robot.dimensions(633, 519);
+										Thread.sleep(getNumberRandomForSecond(540, 650));
+										robot.clickPressed();
+									}else {
+										robot.dimensions(633, 494);
+										Thread.sleep(getNumberRandomForSecond(540, 650));
+										robot.clickPressed();
+									}
 								}
 								
 								Thread.sleep(getNumberRandomForSecond(2254, 3984));
@@ -154,7 +161,9 @@ public class InicioController {
 								//Desconectar la vpn para el siguiente usuario
 								usuariosAProcesar++;
 								robot.close();
-								vpn.disconnectVpn();
+								if(vpn != null) {
+									vpn.disconnectVpn();
+								}
 								banderaToggle = false;
 								Thread.sleep(getNumberRandomForSecond(1999, 2125));
 							}
@@ -294,6 +303,8 @@ public class InicioController {
 			Thread.sleep(getNumberRandomForSecond(256, 985));
 			robot.clickPressed();
 		}
+		
+		robot.dimensions(320, 320);
 		Thread.sleep(getNumberRandomForSecond(3548, 4572));
 		//Ponerse para cambiar el tipo de archivo
 		robot.dimensions(500, 919);
@@ -308,7 +319,7 @@ public class InicioController {
 
 		Thread.sleep(getNumberRandomForSecond(2250, 3863));
 		//Darle click a la carpeta imagenes
-		RobotController click = new RobotController();
+		Controller.RobotController click = new Controller.RobotController();
 		click.maxiIzquierda();
 		Thread.sleep(getNumberRandomForSecond(2001, 2099));
 		click.dimensions(364, 44);
@@ -378,7 +389,7 @@ public class InicioController {
 			Thread.sleep(getNumberRandomForSecond(3548, 4572));
 			
 			//Darle click a la carpeta imagenes
-			RobotController click = new RobotController();
+			Controller.RobotController click = new Controller.RobotController();
 			System.out.println("Abierto el buscador de fotos");
 			click.maxiIzquierda();
 			Thread.sleep(getNumberRandomForSecond(2001, 2099));
@@ -507,6 +518,8 @@ public class InicioController {
 			Thread.sleep(getNumberRandomForSecond(847, 898));
 			robot.clickPressed();
 		}
+		
+		robot.dimensions(320, 320);
 		Thread.sleep(getNumberRandomForSecond(3001, 3099));
 		//Hacer scroll en las notificaciones
 		System.out.println("Hacer Scrool en notificaciones");
@@ -526,6 +539,8 @@ public class InicioController {
 			Thread.sleep(getNumberRandomForSecond(689, 897));
 			robot.clickPressed();
 		}
+		
+		robot.dimensions(320, 320);
 		Thread.sleep(getNumberRandomForSecond(1689, 1759));
 		
 		System.out.println("Hacer scroll en los mensajes");
@@ -787,6 +802,8 @@ public class InicioController {
 			Thread.sleep(getNumberRandomForSecond(264, 658));
 			robot.clickPressed();
 		}
+		
+		robot.dimensions(320, 320);
 		Thread.sleep(getNumberRandomForSecond(2264, 2658));
 		
 		System.out.println("Darle al boton de buscar");
