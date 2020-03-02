@@ -20,6 +20,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.GridLayout;
@@ -36,7 +37,7 @@ public class RegistrarTarea extends JFrame {
 	private JPanel contentPane;
 	private List<JComboBox<String>> list = new ArrayList<JComboBox<String>>();
 	private JTextField textField;
-
+	private final HashMap<String,Integer> listTask;
 	/**
 	 * Launch the application.
 	 */
@@ -68,7 +69,7 @@ public class RegistrarTarea extends JFrame {
 		
 		JButton btnAgregar = new JButton("Agregar");
 		Task tarea = new Task();
-		final List<String> listTask = tarea.getTasksActive(); 
+		listTask = tarea.getTasksActive(); 
 		final JPanel panel = new JPanel();
 		scrollPane.setViewportView(panel);
 		panel.setLayout(new GridLayout(0, 1, 0, 0));
@@ -78,7 +79,7 @@ public class RegistrarTarea extends JFrame {
 				JComboBox<String> combo = new JComboBox<String>();
 				JSeparator sepa = new JSeparator();
 				sepa.setEnabled(false);
-				for(String st : listTask) combo.addItem(st);
+				for(String st : listTask.keySet()) combo.addItem(st);
 				list.add(combo);
 				panel.add(combo);
 				panel.add(sepa);
@@ -109,7 +110,7 @@ public class RegistrarTarea extends JFrame {
 					taskModelDetail.setTasks_model_id(taskModel.getLast());
 					
 					for(JComboBox<String> in : list) {
-						taskModelDetail.setTasks_id(in.getSelectedIndex() +1 );
+						taskModelDetail.setTasks_id(Integer.parseInt(listTask.get(in.getSelectedItem().toString()).toString()));
 						try {
 							taskModelDetail.insert();
 						} catch (SQLException e) {
@@ -121,6 +122,7 @@ public class RegistrarTarea extends JFrame {
 					panel.removeAll();
 					panel.updateUI();
 					textField.setText("");
+					list.clear();
 				}
 			}
 		});
