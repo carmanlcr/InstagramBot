@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.instagram.Interface.Model;
 
@@ -41,12 +42,12 @@ public class Task_Grid implements Model {
 	}
 
 	
-	public HashMap<String, Integer> getCategoriesToday(){
+	public Map<String, Integer> getCategoriesToday(){
 		HashMap<String, Integer> hash = new HashMap<String, Integer>();
 		String query = "SELECT DISTINCT(ca.categories_id) categories_id,ca.name FROM "+TABLE_NAME+" tg " +
 				"INNER JOIN tasks_grid_detail tgd ON tgd.tasks_grid_id = tg.tasks_grid_id " +
 				"INNER JOIN categories ca ON ca.categories_id = tg.categories_id " + 
-				"WHERE DATE(tg.date_publication) = ? "
+				"WHERE DATE(tg.date_publication) = ? AND tg.active = 1 "
 				+"AND tgd.users_id NOT IN (SELECT pt.users_id FROM posts pt WHERE pt.tasks_grid_id IS NOT NULL AND DATE(pt.created_at) = ?);";
 		date = new Date();
 		try(Connection conexion = conn.conectar();
@@ -67,14 +68,14 @@ public class Task_Grid implements Model {
 		return hash;
 	}
 	
-	public HashMap<String, Integer> getCategoriesAndGeneresToday(){
+	public Map<String, Integer> getCategoriesAndGeneresToday(){
 		HashMap<String, Integer> hash = new HashMap<String, Integer>();
 		String query = "SELECT DISTINCT(ge.generes_id) generes_id,ge.name FROM "+TABLE_NAME+" tg " +
 				"INNER JOIN tasks_grid_detail tgd ON tgd.tasks_grid_id = tg.tasks_grid_id " +
 				"INNER JOIN generes ge ON ge.generes_id = tg.generes_id " + 
 				"WHERE DATE(tg.date_publication) = ? " +
 				"AND tgd.users_id NOT IN (SELECT pt.users_id FROM posts pt WHERE pt.tasks_grid_id IS NOT NULL AND DATE(pt.created_at) = ?) " +
-				"AND tg.categories_id = ?;";
+				"AND tg.categories_id = ? AND tg.active = 1;";
 		date = new Date();
 		try(Connection conexion = conn.conectar();
 				PreparedStatement pre = conexion.prepareStatement(query)){
@@ -142,7 +143,7 @@ public class Task_Grid implements Model {
 				+" INNER JOIN users u ON u.users_id = tgd.users_id AND u.users_id = ? "
 				+ "WHERE tgd.users_id NOT IN (SELECT pt.users_id FROM posts pt WHERE pt.tasks_grid_id IS NOT NULL AND pt.tasks_grid_id <> 0 " + 
 				"AND DATE(pt.created_at) = ?) "
-				+ "AND DATE(tg.date_publication) = ?;";
+				+ "AND DATE(tg.date_publication) = ? AND tg.active = 1;";
 		try(Connection conexion = conn.conectar();
 				PreparedStatement pre = conexion.prepareStatement(query);){
 			

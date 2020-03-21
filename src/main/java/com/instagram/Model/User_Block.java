@@ -21,7 +21,6 @@ public class User_Block implements Model{
 	private String created_at;
 	private String updated_at;
 	private Date date = new Date();
-	private DateFormat dateFormatDate = new SimpleDateFormat("yyyy-MM-dd");
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	private static Conexion conn = new Conexion();
 	Statement st;
@@ -29,7 +28,7 @@ public class User_Block implements Model{
 	
 	
 	public void insert() {
-		setCreated_at(dateFormatDate.format(date));
+		setCreated_at(dateFormatDateTime.format(date));
 		setUpdated_at(dateFormatDateTime.format(date));
 		String insert = "INSERT INTO "+TABLE_NAME+"(users_id,comentario,created_at,updated_at) VALUE "
 				+ " (?,?,?,?);";

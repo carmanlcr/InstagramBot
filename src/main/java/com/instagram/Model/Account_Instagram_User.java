@@ -52,7 +52,7 @@ public class Account_Instagram_User implements Model {
 					"(SELECT aiu.accounts_instagram_id FROM "+TABLE_NAME+" aiu WHERE aiu.users_id = ?) " + 
 					"ORDER BY RAND() LIMIT 1; ";
 			
-			PreparedStatement queryExe = (PreparedStatement) conexion.prepareStatement(query);
+			PreparedStatement queryExe = conexion.prepareStatement(query);
 			queryExe.setInt(1,getUsers_id());
 			
 			rs = queryExe.executeQuery();

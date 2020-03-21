@@ -13,8 +13,7 @@ import org.sikuli.script.Screen;
 import com.instagram.Model.*;
 import com.instagram.Model.Inicio_Aplicacion;
 
-import Controller.SikuliTest;
-
+import configurations.controller.SikuliTest;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -23,8 +22,8 @@ import javax.swing.JButton;
 
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.awt.event.ActionEvent;
 import javax.swing.JMenuBar;
 import java.awt.Color;
@@ -32,20 +31,19 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import java.awt.Font;
 
-import javax.swing.JTextArea;
 import javax.swing.JComboBox;
+
 public class InicioFrame extends JFrame {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private final String VERSION = "2.1.3";
+	private static final String VERSION = "2.1.8";
 	private JPanel contentPane;
-	private final JMenuBar menuBar = new JMenuBar();
+	private final JMenuBar barMenu = new JMenuBar();
 	private final JMenu mnUsuarios = new JMenu("Usuarios");
 	private final JMenuItem registrarUsuario = new JMenuItem("Registrar");
-	//private final JMenuItem importarUsuarios = new JMenuItem("Importar Usuarios");
 	private final JMenuItem buscarUsuario = new JMenuItem("Buscar");
 	private final JMenuItem actualizarUsuario = new JMenuItem("Actualizar Usuarios");
 	private final JMenu mnVpn = new JMenu("Vpn");
@@ -63,38 +61,37 @@ public class InicioFrame extends JFrame {
 	private final JMenuItem registrarTarea = new JMenuItem("Registrar Tarea");
 	private final JMenu mnPhotos = new JMenu("Fotos");
 	private final JMenuItem registrarDireccionDeFotos = new JMenuItem("Registrar Fotos");
-	public ArrayList<JTextArea> textA = new ArrayList<JTextArea>();
-	private static JComboBox<String> comboBox = new JComboBox<String>();
-	private static JComboBox<String> comboBox_1 = new JComboBox<String>();
-	private static HashMap<String, Integer> hashCa;
-	private static HashMap<String, Integer> hashGe = new HashMap<String, Integer>();
+	private static JComboBox<String> comboBox = new JComboBox<>();
+	private static JComboBox<String> comboBox1 = new JComboBox<>();
+	private static Map<String, Integer> hashCa;
+	private static Map<String, Integer> hashGe = new HashMap<>();
 	private static JButton empezar = new JButton("Comenzar");
 	private static Inicio_Aplicacion iniApli = new Inicio_Aplicacion();
-	private final JLabel lblNewLabel_1 = new JLabel("Campaña");
-	private final JLabel lblNewLabel_2 = new JLabel("Genero");
+	private final JLabel lblNewLabel1 = new JLabel("Campaña");
+	private final JLabel lblNewLabel2 = new JLabel("Genero");
 	private static Screen s;
 	
 	/**
 	 * Launch the application.
 	 * @throws SQLException 
 	 */
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) {
 		SikuliTest si = new SikuliTest();
 		si.run();
 		s = si.getScreen();
 		
 		
-		final Task_Grid task_G = new Task_Grid();
-		hashCa = task_G.getCategoriesToday();
+		final Task_Grid taskG = new Task_Grid();
+		hashCa = taskG.getCategoriesToday();
 		setComboBox(hashCa);
 		
 		comboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				comboBox_1.removeAll();
-				comboBox_1.removeAllItems();
-				task_G.setCategories_id(Integer.parseInt(hashCa.get(comboBox.getSelectedItem().toString()).toString()));
-				hashGe = task_G.getCategoriesAndGeneresToday();
-				for(String st : hashGe.keySet()) comboBox_1.addItem(st);
+				comboBox1.removeAll();
+				comboBox1.removeAllItems();
+				taskG.setCategories_id(Integer.parseInt(hashCa.get(comboBox.getSelectedItem().toString()).toString()));
+				hashGe = taskG.getCategoriesAndGeneresToday();
+				for(String st : hashGe.keySet()) comboBox1.addItem(st);
 				
 				if(hashGe.size() > 0) {
 					empezar.setEnabled(true);
@@ -128,13 +125,13 @@ public class InicioFrame extends JFrame {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 559, 383);
-		menuBar.setFont(new Font("Arial", Font.PLAIN, 12));
-		menuBar.setBackground(new Color(51, 153, 204));
+		barMenu.setFont(new Font("Arial", Font.PLAIN, 12));
+		barMenu.setBackground(new Color(51, 153, 204));
 		empezar.setEnabled(false);
-		setJMenuBar(menuBar);
+		setJMenuBar(barMenu);
 		mnUsuarios.setFont(new Font("Arial", Font.BOLD, 12));
 		
-		menuBar.add(mnUsuarios);
+		barMenu.add(mnUsuarios);
 		registrarUsuario.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				RegistrarUsuario registerUser;
@@ -169,7 +166,7 @@ public class InicioFrame extends JFrame {
 		mnUsuarios.add(actualizarUsuario);
 		mnVpn.setFont(new Font("Arial", Font.BOLD, 12));
 		
-		menuBar.add(mnVpn);
+		barMenu.add(mnVpn);
 		registrarVpn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				RegistrarVPN registerVpn = new RegistrarVPN();
@@ -189,7 +186,7 @@ public class InicioFrame extends JFrame {
 		
 		mnCategorias.add(registrarCategoria);
 		mnCategorias.add(mntmRegistrarSubCategorie);
-		menuBar.add(mnCategorias);
+		barMenu.add(mnCategorias);
 		
 		registrarCategoria.addActionListener(new ActionListener() {
 			
@@ -217,7 +214,7 @@ public class InicioFrame extends JFrame {
 		
 		mnFrases.add(registrarFrase);
 		mnFrases.add(registrarHashTag);
-		menuBar.add(mnFrases);
+		barMenu.add(mnFrases);
 		
 		registrarFrase.addActionListener(new ActionListener() {
 			
@@ -248,7 +245,7 @@ public class InicioFrame extends JFrame {
 		
 		
 		mnGenero.add(registrarGenero);
-		menuBar.add(mnGenero);
+		barMenu.add(mnGenero);
 		
 		registrarGenero.addActionListener(new ActionListener() {
 
@@ -260,7 +257,7 @@ public class InicioFrame extends JFrame {
 		});
 		
 		mnTask.add(registrarTarea);
-		menuBar.add(mnTask);
+		barMenu.add(mnTask);
 		
 		registrarTarea.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -270,7 +267,7 @@ public class InicioFrame extends JFrame {
 		});
 		
 		mnPhotos.add(registrarDireccionDeFotos);
-		menuBar.add(mnPhotos);
+		barMenu.add(mnPhotos);
 		
 		registrarDireccionDeFotos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -282,56 +279,56 @@ public class InicioFrame extends JFrame {
 		JLabel lblNewLabel = new JLabel(VERSION);
 		lblNewLabel.setFont(new Font("Arial", Font.PLAIN, 12));
 		
-		GroupLayout gl_contentPane = new GroupLayout(contentPane);
-		gl_contentPane.setHorizontalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_contentPane.createSequentialGroup()
+		GroupLayout glContentPane = new GroupLayout(contentPane);
+		glContentPane.setHorizontalGroup(
+			glContentPane.createParallelGroup(Alignment.LEADING)
+				.addGroup(glContentPane.createSequentialGroup()
 					.addGap(36)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_contentPane.createSequentialGroup()
-							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
-								.addComponent(lblNewLabel_2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(lblNewLabel_1, GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE))
+					.addGroup(glContentPane.createParallelGroup(Alignment.LEADING)
+						.addGroup(glContentPane.createSequentialGroup()
+							.addGroup(glContentPane.createParallelGroup(Alignment.LEADING, false)
+								.addComponent(lblNewLabel2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(lblNewLabel1, GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE))
 							.addGap(65)
-							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-								.addComponent(comboBox_1, GroupLayout.PREFERRED_SIZE, 213, GroupLayout.PREFERRED_SIZE)
+							.addGroup(glContentPane.createParallelGroup(Alignment.LEADING)
+								.addComponent(comboBox1, GroupLayout.PREFERRED_SIZE, 213, GroupLayout.PREFERRED_SIZE)
 								.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 213, GroupLayout.PREFERRED_SIZE))
 							.addContainerGap(170, Short.MAX_VALUE))
-						.addGroup(gl_contentPane.createSequentialGroup()
+						.addGroup(glContentPane.createSequentialGroup()
 							.addComponent(lblNewLabel)
 							.addPreferredGap(ComponentPlacement.RELATED, 348, Short.MAX_VALUE)
 							.addComponent(empezar)
 							.addGap(43))))
 		);
 		
-		gl_contentPane.setVerticalGroup(
-			gl_contentPane.createParallelGroup(Alignment.TRAILING)
-				.addGroup(gl_contentPane.createSequentialGroup()
+		glContentPane.setVerticalGroup(
+			glContentPane.createParallelGroup(Alignment.TRAILING)
+				.addGroup(glContentPane.createSequentialGroup()
 					.addGap(62)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
+					.addGroup(glContentPane.createParallelGroup(Alignment.BASELINE)
 						.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 39, GroupLayout.PREFERRED_SIZE)
-						.addComponent(lblNewLabel_1))
+						.addComponent(lblNewLabel1))
 					.addGap(38)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-						.addComponent(comboBox_1, GroupLayout.PREFERRED_SIZE, 39, GroupLayout.PREFERRED_SIZE)
-						.addComponent(lblNewLabel_2))
+					.addGroup(glContentPane.createParallelGroup(Alignment.BASELINE)
+						.addComponent(comboBox1, GroupLayout.PREFERRED_SIZE, 39, GroupLayout.PREFERRED_SIZE)
+						.addComponent(lblNewLabel2))
 					.addPreferredGap(ComponentPlacement.RELATED, 85, Short.MAX_VALUE)
 					.addComponent(lblNewLabel)
 					.addGap(46))
-				.addGroup(gl_contentPane.createSequentialGroup()
+				.addGroup(glContentPane.createSequentialGroup()
 					.addContainerGap(238, Short.MAX_VALUE)
 					.addComponent(empezar, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
 					.addGap(36))
 		);
-		contentPane.setLayout(gl_contentPane);
+		contentPane.setLayout(glContentPane);
 		iniApli.setVersion(VERSION);
 		empezar.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
 				try {
 					int id = Integer.parseInt(hashCa.get(comboBox.getSelectedItem().toString()).toString());
-					int id_genere = Integer.parseInt(hashGe.get(comboBox_1.getSelectedItem().toString()).toString());
-					Ejecucion eje = new Ejecucion(id,id_genere,iniApli,s);
+					int idGenere = Integer.parseInt(hashGe.get(comboBox1.getSelectedItem().toString()).toString());
+					Ejecucion eje = new Ejecucion(id,idGenere,iniApli,s);
 					setExtendedState(ICONIFIED);
 					eje.inicio();
 				} catch (SQLException e1) {
@@ -342,8 +339,8 @@ public class InicioFrame extends JFrame {
 			}
 		});
 	}
-	private static JComboBox<String> setComboBox(HashMap<String, Integer> map) {
-		comboBox = new JComboBox<String>();
+	private static JComboBox<String> setComboBox(Map<String, Integer> map) {
+		comboBox = new JComboBox<>();
 		
 		for (String string : map.keySet()) {
 			comboBox.addItem(string);
