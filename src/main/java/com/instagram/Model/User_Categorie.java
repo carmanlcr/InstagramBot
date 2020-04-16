@@ -11,14 +11,16 @@ import java.util.Date;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 
 public class User_Categorie implements Model{
 	
-	private final String TABLE_NAME = "users_categories";
+	private static final String TABLE_NAME = "users_categories";
 	private int users_id;
 	private int categories_id;
 	private String created_at;
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	Statement st;
@@ -27,10 +29,12 @@ public class User_Categorie implements Model{
 	public void insert() {
 		
 		setCreated_at(dateFormat.format(date));
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,created_at) "
-					+ " VALUE (?,?,?);";
-			PreparedStatement exe = conexion.prepareStatement(insert);
+		String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,created_at) "
+				+ " VALUE (?,?,?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
+			
+			
 			exe.setInt(1, getUsers_id());
 			exe.setInt(2, getCategories_id());
 			exe.setString(3, getCreated_at());
@@ -45,9 +49,9 @@ public class User_Categorie implements Model{
 		String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,created_at) "
 				+ " VALUE (?,?,?);";
 		setCreated_at(dateFormat.format(date));
-		try (Connection conexion = conn.conectar();){
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
 			
-			PreparedStatement exe = conexion.prepareStatement(insert);
 			exe.setInt(1, getUsers_id());
 			exe.setInt(2, getCategories_id());
 			exe.setString(3, getCreated_at());
@@ -67,7 +71,7 @@ public class User_Categorie implements Model{
 		setCreated_at(dateFormat.format(date));
 		try (Connection conexion = conn.conectar();){
 			
-			st = (Statement) conexion.createStatement();
+			st = conexion.createStatement();
 			st.executeUpdate(update);
 
 			conexion.close();

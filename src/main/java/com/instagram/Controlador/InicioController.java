@@ -23,13 +23,17 @@ import com.instagram.Model.Path_Photo;
 import com.instagram.Model.Phrases;
 import com.instagram.Model.Post;
 import com.instagram.Model.Task_Grid;
+import com.instagram.Model.Task_Grid_Tags;
 import com.instagram.Model.Task_Model_Detail;
 import com.instagram.Model.User;
 import com.instagram.Model.User_Block;
+import com.instagram.Model.User_Follower;
 import com.instagram.Model.Vpn;
 
 import configurations.controller.VpnController;
-import configurations.controller.RobotController;;
+import configurations.controller.DriverController;
+import configurations.controller.RobotController;
+import configurations.controller.SftpController;
 
 
 public class InicioController {
@@ -38,6 +42,7 @@ public class InicioController {
 	private static final String PATH_IMAGES_SIKULI = "C:\\ImagenesSikuli\\";
 	protected static final  String PATH_IMAGES_SFTP = "C:\\imagesSftp\\";
 	private static final String PATH_IMAGES_BLOCK = "C:\\ImagenesSikuli\\validate-block";
+	private DriverController driver;
 	private User users;
 	private RobotController robot;
 	private List<String> listCheckBoxUsers = new ArrayList<>();
@@ -259,10 +264,10 @@ public class InicioController {
 					break;
 				case 4:
 					//Publicacion final
-					if(isPublication && image != null) {
-						SftpController sftp = new SftpController();
+					if(isPublication && image != null) { 
+						SftpController sftp´= new SftpController();
 						System.out.println("Descangando Imagen "+image);
-						sftp.downloadFileSftp(image);
+						sftp.downloadFileSftp(SftpController.PATH_IMAGE_UPLOAD,image,SftpController.PATH_IMAGE_DOWNLOAD_FTP);
 						publicFinal(taskModelId);
 					}
 					break;
@@ -276,6 +281,9 @@ public class InicioController {
 					break;
 				case 7:
 					followUsers();
+					break;
+				case 8:
+					getFollowers();
 					break;
 				default:
 					break;
@@ -778,66 +786,152 @@ public class InicioController {
   
 	
 	private void followUsers() throws InterruptedException {
-		System.out.println("Ingresar a buscar hashtag");
+		System.out.println("Ingresar a buscar palabras");
+		
+		Task_Grid_Tags tgt = new Task_Grid_Tags();
+		tgt.setTasks_grid_id(tasksGridId);
+		List<Task_Grid_Tags> list = tgt.getTagsForTask();
+		
+		for(Task_Grid_Tags tags : list) {
+			if(screen.exists(PATH_IMAGES_SIKULI+"search.png") != null) {
+				clickException(PATH_IMAGES_SIKULI+"search.png");
+			}else {
+				robot.dimensions(385, 965);
+				Thread.sleep(getNumberRandomForSecond(264, 658));
+				robot.clickPressed();
+			}
+			
+			robot.dimensions(320, 320);
+			Thread.sleep(getNumberRandomForSecond(2264, 2658));
+			
+			System.out.println("Darle al boton de buscar");
+			
+			//Darle clic al input donde se escribe 
+			if(screen.exists(PATH_IMAGES_SIKULI+"search-text.png") != null) {
+				clickException(PATH_IMAGES_SIKULI+"search-text.png");
+			}else {
+				robot.dimensions(645, 131);
+				Thread.sleep(getNumberRandomForSecond(264, 658));
+				robot.clickPressed();
+			}
+			Thread.sleep(getNumberRandomForSecond(2264, 2658));
 
-		if(screen.exists(PATH_IMAGES_SIKULI+"search.png") != null) {
-			clickException(PATH_IMAGES_SIKULI+"search.png");
-		}else {
-			robot.dimensions(385, 965);
-			Thread.sleep(getNumberRandomForSecond(264, 658));
-			robot.clickPressed();
+			System.out.println("Escribiendo en el cuadro de texto");
+			//Escribir en el input
+		
+			robot.inputWrite(tags.getTags());
+			Thread.sleep(getNumberRandomForSecond(3198, 4245));
+			robot.enter();
+			robot.enter();
+			Thread.sleep(getNumberRandomForSecond(4198, 5245));
+			selectPhotoAndFollow();
 		}
-		
-		robot.dimensions(320, 320);
-		Thread.sleep(getNumberRandomForSecond(2264, 2658));
-		
-		System.out.println("Darle al boton de buscar");
-		
-		//Darle clic al input donde se escribe 
-		if(screen.exists(PATH_IMAGES_SIKULI+"search-text.png") != null) {
-			clickException(PATH_IMAGES_SIKULI+"search-text.png");
-		}else {
-			robot.dimensions(645, 131);
-			Thread.sleep(getNumberRandomForSecond(264, 658));
-			robot.clickPressed();
-		}
-		Thread.sleep(getNumberRandomForSecond(2264, 2658));
 
-		System.out.println("Escribiendo en el cuadro de texto");
-		//Escribir en el input
-		String[] hashtag = {"#followforfollow","#followback","#followme","#follow4follow","#FollowPyramid","#TEAMFOLLOWBACK",
-				"#SiguemeYTeSigo","#F4F"};
-		robot.inputWrite(hashtag[getNumberRandomForSecond(0, hashtag.length-1)]);
-		Thread.sleep(getNumberRandomForSecond(3198, 4245));
-		robot.enter();
-		robot.enter();
-		Thread.sleep(getNumberRandomForSecond(4198, 5245));
-		selectPhotoAndFollow();
 	}
 	
 	private void selectPhotoAndFollow() throws InterruptedException {
+		
 		for(int i = 1; i <=15; i++) {
-			//Click a la primera foto
-			robot.pressTab();
-			Thread.sleep(getNumberRandomForSecond(125, 214));
-			robot.pressTab();
-			Thread.sleep(getNumberRandomForSecond(125, 214));
-			for(int j = 0; j < i; j++) {
-				robot.pressTab();
-				Thread.sleep(getNumberRandomForSecond(125, 214));
-			}
-			robot.enter();
-			Thread.sleep(getNumberRandomForSecond(4125, 4214));
+			
+			robot.pressShiftTabulador();
+			Thread.sleep(200);
+			
+		}
+		
+		robot.enter();
+		Thread.sleep(getNumberRandomForSecond(2500, 3250));
+		
+		for(int j = 1; j<= 15;j++) {
 			if(screen.exists("C:\\ImagenesSikuli\\follow.png") != null) {
 				clickException("C:\\ImagenesSikuli\\follow.png");
 				Thread.sleep(getNumberRandomForSecond(125, 214));
 			}
-			robot.pressEsc();
-			Thread.sleep(getNumberRandomForSecond(725, 814));
+		    
+			robot.pressLeft();
 			
-			
+			Thread.sleep(getNumberRandomForSecond(2500, 3250));
 		}
 		
+		robot.pressEsc();
+		Thread.sleep(getNumberRandomForSecond(2500, 3250));
+	}
+	
+	private void getFollowers() throws InterruptedException {
+		//Ir al perfil del usuario
+		robot.dimensions(1142, 967);
+		Thread.sleep(getNumberRandomForSecond(254, 621));
+		robot.clickPressed();
+		Thread.sleep(getNumberRandomForSecond(2001, 3099));
+		
+		robot.selectAll();
+		
+		Thread.sleep(getNumberRandomForSecond(2001, 3099));
+		
+		robot.copyCtrlC();
+		
+		Thread.sleep(getNumberRandomForSecond(2001, 3099));
+		
+		
+		new Thread(new Runnable() {
+			
+			public void run() {
+				try {
+					Thread.sleep(2556);
+					robot.paste();
+					Thread.sleep(14);
+					robot.enter();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					Thread.currentThread().interrupt();
+				}
+			}
+		}).start();
+		String linkInstagram = JOptionPane.showInputDialog("PRESIONAR ctrl+v Y PULSE ACEPTAR");
+		
+		System.out.println(linkInstagram);
+		
+		int followers = 0, following = 0;
+		String[] all = linkInstagram.split(" ");
+		
+		for(int i = 0; i<all.length;i++) {
+			if(all[i].equals("seguidores")) {
+				followers = Integer.parseInt(all[i-1]);
+			}else if(all[i].equals("seguidos")) {
+				following = Integer.parseInt(all[i-1]);
+			}
+		}
+		
+		
+		User_Follower userF = new User_Follower();
+		userF.setUsers_id(idUser);
+		userF.setFollowers(followers);
+		userF.setFollowing(following);
+		
+		userF = userF.find(idUser);
+		
+		if(userF == null) {
+			userF = new User_Follower();
+			userF.setUsers_id(idUser);
+			userF.setFollowers(followers);
+			userF.setFollowing(following);
+			try {
+				userF.insert();
+				System.out.println("Se insertaron los datos correctamente");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}else {
+			if(following != userF.getFollowing() || followers != userF.getFollowers()) {
+				userF.setFollowers(followers);
+				userF.setFollowing(following);
+				try {
+					userF.insert();
+					System.out.println("Se insertaron nuevos datos correctamente");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 	
 	private void userBlock(String name) {

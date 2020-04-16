@@ -11,10 +11,12 @@ import java.util.Date;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 
 public class User_Block implements Model{
 	
-	private final String TABLE_NAME = "users_block";
+	private static final String TABLE_NAME = "users_block";
 	private int users_id;
 	private boolean active;
 	private String comentario;
@@ -22,7 +24,7 @@ public class User_Block implements Model{
 	private String updated_at;
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	Statement st;
 	ResultSet rs;
 	
@@ -32,8 +34,9 @@ public class User_Block implements Model{
 		setUpdated_at(dateFormatDateTime.format(date));
 		String insert = "INSERT INTO "+TABLE_NAME+"(users_id,comentario,created_at,updated_at) VALUE "
 				+ " (?,?,?,?);";
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement exe = conexion.prepareStatement(insert);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
+			
 			exe.setInt(1, getUsers_id());
 			exe.setString(2, getComentario());
 			exe.setString(3, getCreated_at());
@@ -50,9 +53,10 @@ public class User_Block implements Model{
 		
 		
 		String queryExce = "SELECT us.users_id FROM "+TABLE_NAME+" us WHERE users_id = ? AND active = ?;";
-		try (Connection conexion = conn.conectar();){
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = conexion.prepareStatement(queryExce);){
 			
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			
 			query.setInt(1, getUsers_id());
 			query.setInt(2, 1);
 			rs = query.executeQuery();
@@ -74,8 +78,9 @@ public class User_Block implements Model{
 		setUpdated_at(dateFormatDateTime.format(date));
 		User user = new User();
 		user.setUsername(username);
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement pst = conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);){
+			
 			pst.setBoolean(1,false);
 			pst.setString(2, getUpdated_at());
 			pst.setInt(3, user.getIdUser());

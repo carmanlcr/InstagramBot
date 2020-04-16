@@ -48,11 +48,11 @@ public class RegistrarUsuario extends JFrame {
 	private JTextField fdnField = new JTextField();
 	private JTextField simCardField = new JTextField();
 	private Vpn v = new Vpn();
-	private Map<String,Integer> vpn = new HashMap<String, Integer>();
-	private JComboBox<String> comboBoxVpn = new JComboBox<String>();
+	private Map<String,Integer> vpn = new HashMap<>();
+	private JComboBox<String> comboBoxVpn = new JComboBox<>();
 	private Categories cate = new Categories();
-	private HashMap<String, Integer> hashCatego = new HashMap<String, Integer>();
-	private JComboBox<String> comboBoxCategori = new JComboBox<String>();
+	private Map<String, Integer> hashCatego = new HashMap<>();
+	private JComboBox<String> comboBoxCategori = new JComboBox<>();
 	private JButton btnRegistrar = new JButton("Registrar");
 	private RegistrarUsuario frame;
 	
@@ -269,7 +269,7 @@ public class RegistrarUsuario extends JFrame {
 	
 
 	private JComboBox<String> setComboBoxVpn(final SortedSet<String> keysV) {
-		comboBoxVpn = new JComboBox<String>();
+		comboBoxVpn = new JComboBox<>();
 		
 		for (String st : keysV){
 			comboBoxVpn.addItem(st);
@@ -278,7 +278,7 @@ public class RegistrarUsuario extends JFrame {
 	}
 	
 	private JComboBox<String> setComboBoxCategorias(SortedSet<String> keys) {
-		comboBoxCategori = new JComboBox<String>();
+		comboBoxCategori = new JComboBox<>();
 		
 		for (String string : keys) {
 			comboBoxCategori.addItem(string);

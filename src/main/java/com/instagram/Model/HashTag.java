@@ -12,6 +12,8 @@ import java.util.List;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 
 public class HashTag implements Model{
 
@@ -21,7 +23,7 @@ public class HashTag implements Model{
 	private int categories_id;
 	private int sub_categories_id;
 	private int generes_id;
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	
 	public void insert() throws SQLException {
 		Date date = new Date();
@@ -51,8 +53,6 @@ public class HashTag implements Model{
 				
 			} catch(SQLException e)  {
 				System.err.println(e);
-			} catch(Exception e){
-				System.err.println(e);
 			}
 			
 		
@@ -64,13 +64,15 @@ public class HashTag implements Model{
 		int indice = 0;
 		
 		ResultSet rs = null;
-		try (Connection conexion = conn.conectar();){
+		String queryExce = "SELECT ht.name FROM hashtag ht "
+				+ "WHERE ht.active = ? AND ht.generes_id = ? "
+				+ "AND ht.categories_id = ? "
+				+ "ORDER BY RAND() LIMIT 4;";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query =  conexion.prepareStatement(queryExce);){
 			
-			String queryExce = "SELECT ht.name FROM hashtag ht "
-					+ "WHERE ht.active = ? AND ht.generes_id = ? "
-					+ "AND ht.categories_id = ? "
-					+ "ORDER BY RAND() LIMIT 4;";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			
+			
 			query.setInt(1, 1);
 			query.setInt(2, getGeneres_id());
 			query.setInt(3, getCategories_id());
@@ -88,14 +90,16 @@ public class HashTag implements Model{
  	}
 	
 	public List<String> getHashTagForCategories(){
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		ResultSet rs = null;
-		try (Connection conexion = conn.conectar();){
+		String queryExce = "SELECT ht.name FROM hashtag ht "
+				+ "WHERE ht.active = ? AND ht.generes_id = ? "
+				+ "AND ht.categories_id = ? ; ";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = conexion.prepareStatement(queryExce);){
 			
-			String queryExce = "SELECT ht.name FROM hashtag ht "
-					+ "WHERE ht.active = ? AND ht.generes_id = ? "
-					+ "AND ht.categories_id = ? ; ";
-			PreparedStatement  query = conexion.prepareStatement(queryExce);
+			
+			
 			query.setInt(1, 1);
 			query.setInt(2, getGeneres_id());
 			query.setInt(3, getCategories_id());
@@ -114,10 +118,11 @@ public class HashTag implements Model{
 	public int getIdCategorieHashTag() throws SQLException {
 		int id = 0;
 		ResultSet rs = null;
-		
-		try (Connection conexion = conn.conectar();){
-			String queryExce = "SELECT * FROM hashtag WHERE name = ? AND active = ? LIMIT ?;";
-			PreparedStatement  query = conexion.prepareStatement(queryExce);
+		String queryExce = "SELECT * FROM hashtag WHERE name = ? AND active = ? LIMIT ?;";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = conexion.prepareStatement(queryExce);){
+			
+			
 			query.setString(1, getName());
 			query.setInt(2, 1);
 			query.setInt(3, 1);

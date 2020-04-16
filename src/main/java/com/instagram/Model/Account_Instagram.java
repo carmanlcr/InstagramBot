@@ -9,26 +9,30 @@ import java.util.Date;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 public class Account_Instagram implements Model {
 	
-	private final String TABLE_NAME = "accounts_instagram";
+	private static final String TABLE_NAME = "accounts_instagram";
 	private int accounts_instagram_id;
 	private String account;
 	private int generes_id;
 	private int categories_id;
 	private String created_at;
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	
 	public void insert() throws SQLException {
 		setCreated_at(dateFormat.format(date));
 		
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+""
-					+ "(account,generes_id,categories_id,created_at) "
-					+ " VALUE (?,?,?,?);";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(insert);
+		String insert = "INSERT INTO "+TABLE_NAME+""
+				+ "(account,generes_id,categories_id,created_at) "
+				+ " VALUE (?,?,?,?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query =conexion.prepareStatement(insert);){
+			
+			
 			query.setString(1, getAccount());
 			query.setInt(2, getGeneres_id());
 			query.setInt(3, getCategories_id());

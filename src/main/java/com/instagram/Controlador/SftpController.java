@@ -9,8 +9,9 @@ import com.jcraft.jsch.SftpException;
 
 /**
  * Connecion SFTP para la descarga de imagenes en el servidor
- * 
+ * Se movioal proyecto Configurations
  * @author Luis Morales
+ * @deprecated
  *
  */
 public class SftpController {

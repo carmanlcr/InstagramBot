@@ -12,12 +12,14 @@ import java.util.List;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 
 public class Sub_Categorie implements Model {
 	
 	private String name;
 	private int categories_id;
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	
 	public void insert() throws SQLException {
 		
@@ -32,23 +34,22 @@ public class Sub_Categorie implements Model {
 				
 			} catch(SQLException e)  {
 				System.err.println(e);
-			} catch(Exception e){
-				System.err.println(e);
-				
-			}
+			} 
 	}
 	
 	public List<String> getSubCategories(){
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 
 		
 		ResultSet rs = null;
-		try (Connection conexion = conn.conectar();){
+		String queryExce = "SELECT sca.name FROM sub_categories sca "
+				+ "WHERE sca.categories_id = ? ; ";
+		
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = conexion.prepareStatement(queryExce);){
 			
-			String queryExce = "SELECT sca.name FROM sub_categories sca "
-					+ "WHERE sca.categories_id = ? ; ";
 			
-			PreparedStatement  query = conexion.prepareStatement(queryExce);
+		
 			query.setInt(1, getCategories_id());
 			rs = query.executeQuery();
 
@@ -67,12 +68,14 @@ public class Sub_Categorie implements Model {
 		int indice = 0;
 		
 		ResultSet rs = null;
-		try (Connection conexion = conn.conectar();){
+		String queryExce = "SELECT sca.sub_categories_id FROM sub_categories sca "
+				+ "WHERE sca.name = ? LIMIT 1; ";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = conexion.prepareStatement(queryExce);){
 			
-			String queryExce = "SELECT sca.sub_categories_id FROM sub_categories sca "
-					+ "WHERE sca.name = ? LIMIT 1; ";
 			
-			PreparedStatement  query = conexion.prepareStatement(queryExce);
+			
+			
 			query.setString(1, name);
 			rs = query.executeQuery();
 

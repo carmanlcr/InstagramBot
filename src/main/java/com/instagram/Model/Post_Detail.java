@@ -9,13 +9,15 @@ import java.util.Date;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 
 public class Post_Detail implements Model {
 
 	private int posts_id;
 	private int hashtag_id;
 	private String created_at;
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 

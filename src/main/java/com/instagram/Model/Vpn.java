@@ -11,18 +11,20 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import configurations.connection.ConnectionIG;
+
 
 
 public class Vpn {
 
-	private final String TABLE_NAME = "vpn";
+	private static final String TABLE_NAME = "vpn";
 	private int vpn_id;
 	private String name;
 	private boolean active;
 	private String created_at;
 	private String updated_at;
 	private Date date;
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	
 	
 	public Vpn getVpn() throws SQLException {
@@ -52,12 +54,12 @@ public class Vpn {
 	
 	public Map<Integer,String> getAllActive() throws SQLException {
 
-		Connection conexion = conn.conectar();
-		Map<Integer,String> list = new HashMap<Integer,String>();
+		
+		Map<Integer,String> list = new HashMap<>();
 		Statement st = null;
 	    ResultSet rs = null;
-		try {
-			st = (Statement) conexion.createStatement();
+		try(Connection conexion = conn.conectar();) {
+			st = conexion.createStatement();
 			
 			
 			rs = st.executeQuery("SELECT * FROM vpn WHERE active = 1 ORDER BY name ASC");
@@ -71,7 +73,6 @@ public class Vpn {
 			System.err.println(e);
 		}finally {
 			st.close();
-			conexion.close();
 		}
 		
 		return list;
@@ -81,10 +82,10 @@ public class Vpn {
 		String nameVpn = "";
 		Statement st = null;
 		ResultSet rs = null;
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			
-			st = (Statement) conexion.createStatement();
+			st = conexion.createStatement();
 			
 			
 			rs = st.executeQuery("SELECT * FROM vpn WHERE name = '"+nameVpn+"';");
@@ -97,7 +98,6 @@ public class Vpn {
 			System.err.println(e);
 		}finally{
 			st.close();
-			conexion.close();
 		}
 		
 		return nameVpn;
@@ -108,10 +108,10 @@ public class Vpn {
 		int idVpn = 0;
 		ResultSet rs = null;
 		Statement st = null;
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			
-			st = (Statement) conexion.createStatement();
+			st = conexion.createStatement();
 			String query = "SELECT * FROM vpn WHERE name = '"+name+"';";
 			
 			rs = st.executeQuery(query);
@@ -124,7 +124,6 @@ public class Vpn {
 			System.err.println(e);
 		}finally {
 			rs.close();
-			conexion.close();
 		}
 			
 		
@@ -136,10 +135,10 @@ public class Vpn {
 		int idVpn = 0;
 		ResultSet rs = null;
 		Statement st = null;
-		Connection conexion = conn.conectar();
-		try {
+		
+		try(Connection conexion = conn.conectar();) {
 			
-			st = (Statement) conexion.createStatement();
+			st = conexion.createStatement();
 			String query = "SELECT * FROM vpn WHERE UPPER(name) = '"+name.toUpperCase()+"';";
 			
 			rs = st.executeQuery(query);
@@ -152,7 +151,6 @@ public class Vpn {
 			System.err.println(e);
 		}finally {
 			rs.close();
-			conexion.close();
 		}
 			
 		if(idVpn==0) {
@@ -175,7 +173,7 @@ public class Vpn {
 		}else {
 			try {
 				String insert = "INSERT INTO vpn(name) VALUES ('"+getName()+"','"+getCreated_at()+"','"+getUpdated_at()+"');";
-				st = (Statement) conexion.createStatement();
+				st = conexion.createStatement();
 				st.executeUpdate(insert);
 				
 				
@@ -193,14 +191,15 @@ public class Vpn {
 		
 	}
 	
-	public HashMap<String,Integer> getAllVpn(){
-		HashMap<String,Integer> mapGe = new HashMap<String,Integer>();
+	public Map<String,Integer> getAllVpn(){
+		Map<String,Integer> mapGe = new HashMap<>();
 		
 		String query = "SELECT * FROM "+TABLE_NAME+" v WHERE active = 1;";
 		
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement pst = conexion.prepareStatement(query);
-			ResultSet rs = pst.executeQuery();
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);
+				ResultSet rs = pst.executeQuery();){
+			
 			while (rs.next() ) {
 				mapGe.put(rs.getString("v.name"), rs.getInt("v.vpn_id"));
 			}

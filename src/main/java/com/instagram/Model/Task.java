@@ -9,20 +9,23 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.instagram.Interface.Model;
+
+import configurations.connection.ConnectionIG;
 
 
 public class Task implements Model{
 	
-	private final String TABLE_NAME = "tasks";
+	private static final String TABLE_NAME = "tasks";
 	private String name;
 	private String created_at;
 	private String updated_at;
 	private boolean active;
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
-	private Conexion conn = new Conexion();
+	private ConnectionIG conn = new ConnectionIG();
 	Statement st;
 	ResultSet rs;
 	
@@ -32,8 +35,9 @@ public class Task implements Model{
 		setUpdated_at(dateFormatDateTime.format(date));
 		String insert = "INSERT INTO "+TABLE_NAME+"(name,created_at) VALUE "
 				+ " (?,?,?);";
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement exe = conexion.prepareStatement(insert);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
+			
 			exe.setString(1, getName());
 			exe.setString(2, getCreated_at());
 			exe.setString(3, getUpdated_at());
@@ -44,14 +48,15 @@ public class Task implements Model{
 		
 	}
 
-	public HashMap<String, Integer> getTasksActive(){
-		HashMap<String, Integer> list = new HashMap<String,Integer>();
+	public Map<String, Integer> getTasksActive(){
+		Map<String, Integer> list = new HashMap<>();
 		
 		
 		String query = "SELECT t.tasks_id,t.name FROM "+TABLE_NAME+" t " + 
 				"WHERE active = ?;"; 
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement pst = conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);){
+			
 			pst.setInt(1, 1);
 			rs = pst.executeQuery();
 			while (rs.next() ) {

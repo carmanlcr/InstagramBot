@@ -11,6 +11,8 @@ import java.util.Date;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 
 public class Task_Model implements Model {
 
@@ -20,7 +22,7 @@ public class Task_Model implements Model {
 	private String updated_at;
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd H:m:s");
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	ResultSet rs;
 	
 	public void insert() throws SQLException {
@@ -29,9 +31,10 @@ public class Task_Model implements Model {
 		setUpdated_at(dateFormat.format(date));
 		String insert = "INSERT INTO tasks_model(name,created_at,updated_at) VALUE "
 				+ " (?,?,?);";
-		try (Connection conexion = conn.conectar();){
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
 			
-			PreparedStatement exe = conexion.prepareStatement(insert);
+			
 			exe.setString(1, getName());
 			exe.setString(2, getCreated_at());
 			exe.setString(3, getUpdated_at());
@@ -60,13 +63,14 @@ public class Task_Model implements Model {
 
 	public int getTaskModelDetailDiferent(String values){
 		int list = 0;
-		
-		try (Connection conexion = conn.conectar();){
+		String queryExce = "SELECT tm.tasks_model_id FROM tasks_model tm " + 
+				"WHERE tm.tasks_model_id NOT IN ("+values+") ORDER BY rand() LIMIT 1;";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = conexion.prepareStatement(queryExce);){
 			
-			String queryExce = "SELECT tm.tasks_model_id FROM tasks_model tm " + 
-							"WHERE tm.tasks_model_id NOT IN ("+values+") ORDER BY rand() LIMIT 1;";
 			
-			PreparedStatement  query = conexion.prepareStatement(queryExce);
+			
+			
 			rs = query.executeQuery();
 			
 			if (rs.next() ) {

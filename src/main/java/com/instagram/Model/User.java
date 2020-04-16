@@ -15,10 +15,12 @@ import java.text.SimpleDateFormat;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 
 public class User implements Model{
 	
-	private final String TABLE_NAME = "users";	
+	private static final String TABLE_NAME = "users";	
 	private int users_id;
 	private String username;
 	private String email;
@@ -32,7 +34,7 @@ public class User implements Model{
 	private int sim_card_number;
 	private int vpn_id;
 	private boolean active;
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private String created_at;
@@ -59,8 +61,7 @@ public class User implements Model{
                user.setEmail(rs.getString("u.email"));
                user.setActive(rs.getBoolean("u.active"));
                user.setCreator(rs.getString("u.creator"));
-               boolean block = rs.getInt("user_blo_null")  == 0 ? false : true; 
-               user.setBlock(block);
+               user.setBlock(rs.getInt("user_blo_null")  == 0 ? false : true);
 			}
 			
 		}catch(Exception e) {
@@ -124,11 +125,13 @@ public class User implements Model{
 		date = new Date();
 		setCreated_at(dateFormat.format(date));
 		setUpdated_at(dateFormat.format(date));
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(username,email,full_name,phone,password,"
-					+ "creator,date_of_birth,created_at,updated_at,sim_card_number,vpn_id)"
-					+ " VALUES (?,?,?,?,?, ?,?,?,?,?,?);";
-			PreparedStatement exe = conexion.prepareStatement(insert);
+		String insert = "INSERT INTO "+TABLE_NAME+"(username,email,full_name,phone,password,"
+				+ "creator,date_of_birth,created_at,updated_at,sim_card_number,vpn_id)"
+				+ " VALUES (?,?,?,?,?, ?,?,?,?,?,?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
+			
+			
 			exe.setString(1, getUsername());
 			exe.setString(2, getEmail());
 			exe.setString(3, getFull_name());
@@ -178,7 +181,7 @@ public class User implements Model{
 	}
 	
 	public List<String> getUserCategorieAndGenere(int id, int id_genere) throws SQLException{
-		ArrayList<String> lista = new ArrayList<String>();
+		ArrayList<String> lista = new ArrayList<>();
 		dateFormat = new SimpleDateFormat("yyy-MM-dd");
 		String query = "SELECT u.username FROM tasks_grid tg " + 
 				"INNER JOIN tasks_grid_detail tgd ON tg.tasks_grid_id = tgd.tasks_grid_id " + 
@@ -207,7 +210,7 @@ public class User implements Model{
  	}
 	
 	public List<String> getUserCategories() throws SQLException{
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		String query = "SELECT us.username "
 				+ "FROM "+TABLE_NAME+" us "
 				+ "INNER JOIN users_categories uc ON uc.users_id = us.users_id "

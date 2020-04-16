@@ -10,27 +10,32 @@ import java.util.Date;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 public class Account_Instagram_User implements Model {
 
-	private final String TABLE_NAME = "account_instagram_users";
+	private static final String TABLE_NAME = "account_instagram_users";
 	private int account_instagram_users_id;
 	private int users_id;
 	private int accounts_instagram_id;
 	private String created_at;
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	ResultSet rs;
 	
 	public void insert() throws SQLException {
+		date = new Date();
 		setCreated_at(dateFormat.format(date));
 		
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+""
-					+ "(users_id,accounts_instagram_id,created_at) "
-					+ " VALUE (?,?,?);";
+		String insert = "INSERT INTO "+TABLE_NAME+""
+				+ "(users_id,accounts_instagram_id,created_at) "
+				+ " VALUE (?,?,?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query =  conexion.prepareStatement(insert);){
 			
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(insert);
+			
+			
 			query.setInt(1, getUsers_id());
 			query.setInt(2, getAccounts_instagram_id());
 			query.setString(3, getCreated_at());
@@ -46,13 +51,15 @@ public class Account_Instagram_User implements Model {
 	public Account_Instagram getAccountsFollowUser() {
 		
 		Account_Instagram ac = null;
-		try(Connection conexion = conn.conectar();) {
-			String query = "SELECT ai.* FROM accounts_instagram ai " + 
-					"WHERE ai.accounts_instagram_id NOT IN " + 
-					"(SELECT aiu.accounts_instagram_id FROM "+TABLE_NAME+" aiu WHERE aiu.users_id = ?) " + 
-					"ORDER BY RAND() LIMIT 1; ";
+		String query = "SELECT ai.* FROM accounts_instagram ai " + 
+				"WHERE ai.accounts_instagram_id NOT IN " + 
+				"(SELECT aiu.accounts_instagram_id FROM "+TABLE_NAME+" aiu WHERE aiu.users_id = ?) " + 
+				"ORDER BY RAND() LIMIT 1; ";
+		try(Connection conexion = conn.conectar();
+				PreparedStatement queryExe = conexion.prepareStatement(query);) {
 			
-			PreparedStatement queryExe = conexion.prepareStatement(query);
+			
+			
 			queryExe.setInt(1,getUsers_id());
 			
 			rs = queryExe.executeQuery();

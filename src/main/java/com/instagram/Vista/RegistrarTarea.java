@@ -20,8 +20,8 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.awt.event.ActionEvent;
 import java.awt.GridLayout;
 import javax.swing.JTextField;
@@ -35,9 +35,9 @@ public class RegistrarTarea extends JFrame {
 	 */
 	private static final long serialVersionUID = 2971396123919213008L;
 	private JPanel contentPane;
-	private List<JComboBox<String>> list = new ArrayList<JComboBox<String>>();
+	private List<JComboBox<String>> list = new ArrayList<>();
 	private JTextField textField;
-	private final HashMap<String,Integer> listTask;
+	private final Map<String,Integer> listTask;
 	/**
 	 * Launch the application.
 	 */

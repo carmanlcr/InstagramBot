@@ -11,6 +11,8 @@ import java.util.Date;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 
 
 public class Path_Photo implements Model {
@@ -23,7 +25,7 @@ public class Path_Photo implements Model {
 	private int generes_id;
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	Statement st;
 	ResultSet rs;
 	
@@ -47,7 +49,7 @@ public class Path_Photo implements Model {
 						+ "VALUE ('"+getPath()+"','"+getCreated_at()+"',"+getCategories_id()+","+getSub_categories_id()+","
 						+getGeneres_id()+");";
 			}
-			st = (Statement) conexion.createStatement();
+			st = conexion.createStatement();
 			st.executeUpdate(insert);
 			
 		} catch(SQLException e)  {
@@ -68,9 +70,10 @@ public class Path_Photo implements Model {
 		
 		
 		String update = "";
-		try (Connection conexion = conn.conectar();){
-			update = "UPDATE path_photos SET active = ? WHERE categories_id=? AND sub_categories_id = ? AND generes_id = ?";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(update);
+		update = "UPDATE path_photos SET active = ? WHERE categories_id=? AND sub_categories_id = ? AND generes_id = ?";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query =  conexion.prepareStatement(update);){
+			
 			query.setInt(1, 0);
 			query.setInt(2, getCategories_id());
 			query.setInt(3, getSub_categories_id());
@@ -95,19 +98,19 @@ public class Path_Photo implements Model {
 			
 			if(getSub_categories_id() == 0) {
 				query = "SELECT path FROM path_photos WHERE categories_id=? AND generes_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
-				queryE= (PreparedStatement) conexion.prepareStatement(query);
+				queryE= conexion.prepareStatement(query);
 				queryE.setInt(1, getCategories_id());
 				queryE.setInt(2, getGeneres_id());
 				queryE.setInt(3, 1);
 			}else if(getGeneres_id() == 0) {
 				query = "SELECT path FROM path_photos WHERE categories_id=? AND sub_categories_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
-				queryE= (PreparedStatement) conexion.prepareStatement(query);
+				queryE= conexion.prepareStatement(query);
 				queryE.setInt(1, getCategories_id());
 				queryE.setInt(2, getSub_categories_id());
 				queryE.setInt(3, 1);
 			}else {
 				query = "SELECT path FROM path_photos WHERE categories_id=? AND sub_categories_id = ? AND generes_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
-				queryE= (PreparedStatement) conexion.prepareStatement(query);
+				queryE= conexion.prepareStatement(query);
 				queryE.setInt(1, getCategories_id());
 				queryE.setInt(2, getSub_categories_id());
 				queryE.setInt(3, getGeneres_id());

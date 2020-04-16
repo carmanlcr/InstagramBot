@@ -13,12 +13,14 @@ import java.util.List;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 
 
 
 public class Genere implements Model{
 	
-	private final String TABLE_NAME ="generes";
+	private static final String TABLE_NAME ="generes";
 	private int generes_id;
 	private String name;
 	private String created_at;
@@ -26,18 +28,19 @@ public class Genere implements Model{
 	private boolean active;
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	Statement st;
 	ResultSet rs;
 	
 	public void insert() {
 		
 		setCreated_at(dateFormatDateTime.format(date));
-		
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(name,created_at,categories_id) VALUE "
-					+ " (?,?,?);";
-			PreparedStatement exe = conexion.prepareStatement(insert);
+		String insert = "INSERT INTO "+TABLE_NAME+"(name,created_at,categories_id) VALUE "
+				+ " (?,?,?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
+			
+			
 			exe.setString(1, getName());
 			exe.setString(2, getCreated_at());
 			exe.setInt(3, getCategories_id());
@@ -51,12 +54,13 @@ public class Genere implements Model{
 	
 	
 	public List<String> getGeneresActive(){
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
 		String query = "SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
 				"WHERE categories_id = ? AND active = ?;"; 
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement pst = conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);){
+			
 			pst.setInt(1, getCategories_id());
 			pst.setInt(2, 1);
 			rs = pst.executeQuery();
@@ -74,7 +78,7 @@ public class Genere implements Model{
 	}
 	
 	public List<String> getGeneresActiveWithPhrasesHashTagPhoto(){
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
 		String query = "SELECT DISTINCT(g.generes_id), g.name FROM (" + 
 				"SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
@@ -82,8 +86,9 @@ public class Genere implements Model{
 				"INNER JOIN phrases ph ON ph.generes_id = g.generes_id AND ph.active = ? " + 
 				"INNER JOIN hashtag ht ON ht.generes_id = g.generes_id AND ht.active = ? " + 
 				"WHERE g.categories_id = ? AND g.active = ?) g ;"; 
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement pst = conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);){
+			
 			pst.setInt(1, 1);
 			pst.setInt(2, 1);
 			pst.setInt(3, 1);
@@ -108,8 +113,8 @@ public class Genere implements Model{
 		int idGenere = 0;
 		String query = "SELECT g.generes_id FROM "+TABLE_NAME+" g " + 
 				"WHERE g.active = ? AND g.name = ?;"; 
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement pst = conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);){
 			pst.setInt(1, 1);
 			pst.setString(2, getName());
 			rs = pst.executeQuery();

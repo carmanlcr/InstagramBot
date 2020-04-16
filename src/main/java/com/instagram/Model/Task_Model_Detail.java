@@ -13,6 +13,8 @@ import java.util.List;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 
 public class Task_Model_Detail implements Model {
 	
@@ -22,7 +24,7 @@ public class Task_Model_Detail implements Model {
 	private String updated_at;
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	Statement st;
 	ResultSet rs;
 	
@@ -32,9 +34,10 @@ public class Task_Model_Detail implements Model {
 		setUpdated_at(dateFormatDateTime.format(date));
 		String insert = "INSERT INTO tasks_model_detail(tasks_model_id,tasks_id,created_at,updated_at) VALUE "
 				+ " (?,?,?,?);";
-		try (Connection conexion = conn.conectar();){
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
 			
-			PreparedStatement exe = conexion.prepareStatement(insert);
+			
 			exe.setInt(1, getTasks_model_id());
 			exe.setInt(2, getTasks_id());
 			exe.setString(3, getCreated_at());
@@ -48,11 +51,12 @@ public class Task_Model_Detail implements Model {
 	
 	
 	public List<Integer> getTaskModelDetailDiferent(){
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		String queryExce = "SELECT tmd.tasks_id FROM tasks_model_detail tmd " + 
 				"WHERE tasks_model_id = ?;";
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query =  conexion.prepareStatement(queryExce);){
+			
 			query.setInt(1, getTasks_model_id());
 			rs = query.executeQuery();
 			

@@ -10,6 +10,8 @@ import java.util.Date;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 
 public class Phrases implements Model{
 	
@@ -20,7 +22,7 @@ public class Phrases implements Model{
 	private int categories_id;
 	private int sub_categories_id;
 	private int generes_id;
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	
 	
 	public void insert() throws SQLException {
@@ -48,9 +50,6 @@ public class Phrases implements Model{
 				
 			} catch(SQLException e)  {
 				System.err.println(e);
-			} catch(Exception e){
-				System.err.println(e);
-				
 			}
 	}
 	
@@ -61,14 +60,16 @@ public class Phrases implements Model{
 		
 		
 		ResultSet rs = null;
+		String queryExce = "SELECT * FROM "+TABLE_NAME+" ph "
+				+ "WHERE ph.active = ? AND ph.categories_id = ? "
+				+ "AND ph.generes_id = ? "
+				+ "ORDER BY RAND() LIMIT 1;";
 		try (Connection conexion = conn.conectar();
-				Statement st = conexion.createStatement();){
+				Statement st = conexion.createStatement();
+				PreparedStatement  query =  conexion.prepareStatement(queryExce);){
 			
-			String queryExce = "SELECT * FROM "+TABLE_NAME+" ph "
-					+ "WHERE ph.active = ? AND ph.categories_id = ? "
-					+ "AND ph.generes_id = ? "
-					+ "ORDER BY RAND() LIMIT 1;";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			
+			
 			query.setInt(1, 1);
 			query.setInt(2, getCategories_id());
 			query.setInt(3,getGeneres_id());
@@ -94,14 +95,16 @@ public class Phrases implements Model{
 		String list = "";
 		
 		ResultSet rs = null;
+		String queryExce = "SELECT ph.phrase FROM "+TABLE_NAME+" ph "
+				+ "WHERE ph.active = ? AND ph.categories_id = ? "
+				+ "AND ph.sub_categories_id = ? "
+				+ "ORDER BY RAND() LIMIT 1;";
 		try (Connection conexion = conn.conectar();
-				Statement st = conexion.createStatement();){
+				Statement st = conexion.createStatement();
+				PreparedStatement  query = conexion.prepareStatement(queryExce);){
 			
-			String queryExce = "SELECT ph.phrase FROM "+TABLE_NAME+" ph "
-					+ "WHERE ph.active = ? AND ph.categories_id = ? "
-					+ "AND ph.sub_categories_id = ? "
-					+ "ORDER BY RAND() LIMIT 1;";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			
+			
 			query.setInt(1, 1);
 			query.setInt(2, getCategories_id());
 			query.setInt(3, getSub_categories_id());

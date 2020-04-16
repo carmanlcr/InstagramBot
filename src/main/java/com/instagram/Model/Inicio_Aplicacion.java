@@ -9,6 +9,8 @@ import java.util.Date;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 
 public class Inicio_Aplicacion implements Model{
 	private String created_at;
@@ -16,20 +18,21 @@ public class Inicio_Aplicacion implements Model{
 	private String version;
 	private int categories_id;
 	private int generes_id;
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	
 	
 	public void insert() {
+		date = new Date();
 		setCreated_at(dateFormat.format(date));
 		setUpdated_at(dateFormat.format(date));
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO inicio_aplicacion(categories_id,generes_id,version,created_at,updated_at) "
-					+ " VALUE (?,?,?,?,?);";
+		String insert = "INSERT INTO inicio_aplicacion(categories_id,generes_id,version,created_at,updated_at) "
+				+ " VALUE (?,?,?,?,?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(insert);){
 			
-			PreparedStatement pst = conexion.prepareStatement(insert);
 			pst.setInt(1, getCategories_id());
 			pst.setInt(2, getGeneres_id());
 			pst.setString(3, getVersion());

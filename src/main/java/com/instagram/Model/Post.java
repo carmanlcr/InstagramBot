@@ -13,10 +13,12 @@ import java.util.List;
 
 import com.instagram.Interface.Model;
 
+import configurations.connection.ConnectionIG;
+
 
 public class Post implements Model{
 	
-	private final String TABLE_NAME ="posts";
+	private static final String TABLE_NAME ="posts";
 	private int posts_id;
 	private int users_id;
 	private int categories_id;
@@ -32,7 +34,7 @@ public class Post implements Model{
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	private DateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd");
 	
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	Statement st;
 	ResultSet rs;
 
@@ -40,12 +42,14 @@ public class Post implements Model{
 		date = new Date();
 		setCreated_at(dateFormat.format(date));
 		setUpdated_at(dateFormat.format(date));
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+" "
-					+ "(users_id,categories_id,tasks_model_id,phrases_id,tasks_grid_id,link_publication,user_transmition,link_instagram,created_at,updated_at) "
-					+ " VALUE (?,?,?,?,?,?,?,?,?,?);";
+		String insert = "INSERT INTO "+TABLE_NAME+" "
+				+ "(users_id,categories_id,tasks_model_id,phrases_id,tasks_grid_id,link_publication,user_transmition,link_instagram,created_at,updated_at) "
+				+ " VALUE (?,?,?,?,?,?,?,?,?,?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = conexion.prepareStatement(insert);){
 			
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(insert);
+			
+			
 			query.setInt(1, getUsers_id());
 			query.setInt(2, getCategories_id());
 			query.setInt(3, getTasks_model_id());
@@ -68,7 +72,7 @@ public class Post implements Model{
 	}
 	
 	public List<String[]> getCountPostUsers(int categories_id){
-		List<String[]> list = new ArrayList<String[]>();
+		List<String[]> list = new ArrayList<>();
 		String[] array = null;
 		int increment = 0;
 		String created_at = dateFormat1.format(date);
@@ -117,13 +121,11 @@ public class Post implements Model{
 	public int getLastsTasktPublic(){
 		int idTask = 0;
 		
-		
-		try (Connection conexion = conn.conectar();){
-			String queryExce = "SELECT * FROM tasks_model tm " + 
-					"WHERE tm.tasks_model_id NOT IN (SELECT pt.tasks_model_id FROM "+TABLE_NAME+" pt WHERE users_id = ? AND DATE(pt.created_at) BETWEEN ? AND ?) " + 
-					"ORDER BY RAND() LIMIT 1;";
-	
-		PreparedStatement  query = conexion.prepareStatement(queryExce);
+		String queryExce = "SELECT * FROM tasks_model tm " + 
+				"WHERE tm.tasks_model_id NOT IN (SELECT pt.tasks_model_id FROM "+TABLE_NAME+" pt WHERE users_id = ? AND DATE(pt.created_at) BETWEEN ? AND ?) " + 
+				"ORDER BY RAND() LIMIT 1;";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = conexion.prepareStatement(queryExce);){
 		query.setInt(1, getUsers_id());
 		query.setString(2, dateFormat1.format(new Date( date.getTime()-86400000)));
 		query.setString(3, dateFormat1.format(date));

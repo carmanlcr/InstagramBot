@@ -8,24 +8,28 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.instagram.Interface.Model;
+
+import configurations.connection.ConnectionIG;
 
 
 public class Categories implements Model{
 
-	private final String TABLE_NAME = "categories";
+	private static final String TABLE_NAME = "categories";
 	private int categories_id;
 	private String name;
-	private static Conexion conn = new Conexion();
+	private static ConnectionIG conn = new ConnectionIG();
 	
 	
 	public void insert() {
 		String insert = "INSERT INTO categories(name) "
 				+ "VALUES (?);";
-		try (Connection conexion = conn.conectar();){
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
 			
-			PreparedStatement exe = conexion.prepareStatement(insert);
+			
 			exe.setString(1, getName());
 			exe.executeUpdate();
 			
@@ -42,9 +46,12 @@ public class Categories implements Model{
 		ArrayList<String> list = new ArrayList<String>();
 		
 		ResultSet rs = null;
-		try (Connection conexion = conn.conectar();){
-			String queryExce = "SELECT * FROM categories WHERE active = ? ;";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+		String queryExce = "SELECT * FROM categories WHERE active = ? ;";
+		
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = conexion.prepareStatement(queryExce);){
+			
+			
 			query.setInt(1, 1);
 			rs = query.executeQuery();
 
@@ -67,8 +74,8 @@ public class Categories implements Model{
 		return list;
 	}
 
-	public HashMap<String, Integer> getComboBox(){
-		HashMap<String, Integer> map = new HashMap<String, Integer>();
+	public Map<String, Integer> getComboBox(){
+		Map<String, Integer> map = new HashMap<>();
 		String sql = "SELECT * FROM "+TABLE_NAME+" WHERE active = ? ORDER BY name ASC";
 		ResultSet rs = null;
 		try (Connection conexion = conn.conectar();
@@ -146,7 +153,7 @@ public class Categories implements Model{
 	}
 	
 	public List<String> getSubCategorieConcat() throws SQLException {
-		List<String> concat  = new ArrayList<String>();
+		List<String> concat  = new ArrayList<>();
 		ResultSet rs = null;
 		
 		try (Connection conexion = conn.conectar();
