@@ -36,11 +36,11 @@ public class UpdateUsers extends JFrame {
 	private JLabel lblCategoras = new JLabel("Categorías");
 	private JButton btnActualizar = new JButton("Actualizar");
 	private JPanel panel = new JPanel();
-	private JComboBox<String> comboBox = new JComboBox<String>();
-	private JComboBox<String> comboBox_1 = new JComboBox<String>();
+	private JComboBox<String> comboBox = new JComboBox<>();
+	private JComboBox<String> comboBox_1 = new JComboBox<>();
 	private Categories cate = new Categories();
 	private List<JCheckBox> listCheck;
-	private List<String> listUsersSelected = new ArrayList<String>();
+	private List<String> listUsersSelected = new ArrayList<>();
 	/**
 	 * Launch the application.
 	 */
@@ -77,6 +77,7 @@ public class UpdateUsers extends JFrame {
 		btnActualizar.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
+				listUsersSelected.clear();
 				for(JCheckBox list : listCheck) {
 					if(list.isSelected()) listUsersSelected.add(list.getText());
 				}
@@ -158,7 +159,7 @@ public class UpdateUsers extends JFrame {
 				User us = new User();
 				us.setCategories_id(idCategoria);
 				try {
-					listCheck = new ArrayList<JCheckBox>();
+					listCheck = new ArrayList<>();
 					List<String> list = us.getUserCategories();
 					for(String li : list) {
 						JCheckBox che = new JCheckBox(li);

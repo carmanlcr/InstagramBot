@@ -19,6 +19,7 @@ import org.sikuli.script.Screen;
 import com.instagram.Model.Account_Instagram;
 import com.instagram.Model.Account_Instagram_User;
 import com.instagram.Model.Categories;
+import com.instagram.Model.Follower;
 import com.instagram.Model.Path_Photo;
 import com.instagram.Model.Phrases;
 import com.instagram.Model.Post;
@@ -28,6 +29,7 @@ import com.instagram.Model.Task_Model_Detail;
 import com.instagram.Model.User;
 import com.instagram.Model.User_Block;
 import com.instagram.Model.User_Follower;
+import com.instagram.Model.Follower_Report;
 import com.instagram.Model.Vpn;
 
 import configurations.controller.VpnController;
@@ -109,7 +111,7 @@ public class InicioController {
 							robot = new RobotController();
 							String ip = validateIP();
 							String ipActual = "01.02.03.04";
-							if(users.getVpn_id() != 0) {
+							if(0 != 0) {
 								Vpn v = new Vpn();
 								v.setVpn_id(users.getVpn_id());
 								v = v.getVpn();
@@ -118,23 +120,18 @@ public class InicioController {
 								ipActual = validateIP();
 							}
 							
-							
 							//Valida si la vpn conecto
 							if(ip.equals(ipActual)) {	
 								System.err.println("El usuario "+users.getUsername()+ " no se puedo conectar a la vpn");
 								usuariosAProcesar++;
 							}else {
 								//Lanzamiento de la pagina   
-								robot.openChromeIncognit();
-							    Thread.sleep(getNumberRandomForSecond(5540, 7150));
-							    //Maximizar Chrome
-								robot.maximizar();
-								//Escribir la pagina a ingresar
-								robot.inputWrite(PAGE);
-								//Darle enter parawww ir a la pagina
-								robot.enter();
-								Thread.sleep(getNumberRandomForSecond(12540, 14150));
-								IniciaSesion sesion = new IniciaSesion(users.getUsername(),users.getPassword(),screen);
+								driver = new DriverController();
+							    driver.optionsChrome();
+								Thread.sleep(getNumberRandomForSecond(2540, 4150));
+								driver.goPage(PAGE);
+								Thread.sleep(2300);
+								IniciaSesion sesion = new IniciaSesion("carmanandres","Instagraml4ms",screen);
 								int resultSession =sesion.init();
 								
 								switch(resultSession) {
@@ -144,8 +141,8 @@ public class InicioController {
 										break;
 									case 1:
 										//Esperar que cargue la pagina para que cargue el dom completamente
-										Thread.sleep(getNumberRandomForSecond(5250, 5650)); 
-										robot.changeDeveloper();
+										Thread.sleep(getNumberRandomForSecond(3250, 4650)); 
+										robot.changeDeveloper(screen, PATH_IMAGES_SIKULI+"dev-tools-Chorme.png");
 										Thread.sleep(getNumberRandomForSecond(1250, 1650)); 
 										if(!blockUser()) {
 											startProgram(idlistTask);
@@ -161,8 +158,6 @@ public class InicioController {
 									break;
 								}
 
-									
-								
 								robot.close();
 								//Desconectar la vpn para el siguiente usuario
 								if(vpn != null) {
@@ -226,8 +221,6 @@ public class InicioController {
 			Thread.sleep(1250);
 		}
 		
-		
-		
 		scrollDown(34);
 		scrollUp(34);
 		
@@ -237,7 +230,7 @@ public class InicioController {
 		Task_Model_Detail tmd = new Task_Model_Detail();
 		tmd.setTasks_model_id(idlistTask);
 		List<Integer> listTask = tmd.getTaskModelDetailDiferent();
-		System.out.println("Buscando tareas para publicaci�n del usuario");
+		System.out.println("Buscando tareas para publicacion del usuario");
 		random(listTask,idlistTask);
 		
 		
@@ -251,6 +244,7 @@ public class InicioController {
 	
 	private void random(List<Integer> listTask, int taskModelId) throws InterruptedException, SQLException {
 		for(Integer li : listTask) {
+			li = 7;
 			switch(li) {
 				case 1:
 					break;
@@ -265,7 +259,7 @@ public class InicioController {
 				case 4:
 					//Publicacion final
 					if(isPublication && image != null) { 
-						SftpController sftp´= new SftpController();
+						SftpController sftp= new SftpController();
 						System.out.println("Descangando Imagen "+image);
 						sftp.downloadFileSftp(SftpController.PATH_IMAGE_UPLOAD,image,SftpController.PATH_IMAGE_DOWNLOAD_FTP);
 						publicFinal(taskModelId);
@@ -824,7 +818,12 @@ public class InicioController {
 			robot.enter();
 			robot.enter();
 			Thread.sleep(getNumberRandomForSecond(4198, 5245));
-			selectPhotoAndFollow();
+			if(tags.getTags().substring(0,1).equals("#")) {
+				selectPhotoAndFollow();
+			}else if(tags.getTags().substring(0,1).equals("@")) {
+				selectFollowerOfUser();
+			}
+			
 		}
 
 	}
@@ -856,6 +855,119 @@ public class InicioController {
 		Thread.sleep(getNumberRandomForSecond(2500, 3250));
 	}
 	
+	private void selectFollowerOfUser() throws InterruptedException {
+		System.out.println("Ingresar en los followers del usuario");
+		
+		if(driver.searchElement(1, "/html/body/div[1]/section/main/div/header/section/ul/li[2]/a") != 0) {
+			driver.clickButton(1, "/html/body/div[1]/section/main/div/header/section/ul/li[2]/a", "Followings");
+			
+			Thread.sleep(3450);
+			int numRand = getNumberRandomForSecond(55, 700);
+			scrollDown(numRand);
+			scrollUp(numRand);
+			
+			int quantituUsers = driver.getQuantityElements(1, "/html/body/div[4]/div/div[2]/ul/div/li");
+			
+			List<Integer> list = getnumbersRandom(quantituUsers);
+			
+			List<Follower> listFollowers = new ArrayList<>();
+			
+			for(Integer inte : list) {
+				
+				String user = driver.getText(1, "/html/body/div[4]/div/div[2]/ul/div/li["+inte+"]/div/div[1]/div[2]/div[1]/a");
+				String name = driver.getText(1, "/html/body/div[4]/div/div[2]/ul/div/li["+inte+"]/div/div[1]/div[2]/div[2]");
+				String link = driver.getHref(1, "/html/body/div[4]/div/div[2]/ul/div/li["+inte+"]/div/div[1]/div[2]/div[1]/a");
+				
+				
+				Follower follower = new Follower();
+				follower.setUser(user);
+				follower.setName(name);
+				follower.setLink(link);
+				
+				listFollowers.add(follower);
+			}
+			
+			for(Follower follow : listFollowers){
+				System.out.println("Ingresar en el perfil "+follow.getUser());
+				driver.goPage(follow.getLink());
+				
+				if(driver.searchElement(1, "/html/body/div[1]/section/main/div/header/section/div[2]/div/span/span[1]/button") != 0) {
+					
+					System.out.println("Seguir al usuario");
+					driver.clickButton(1, "/html/body/div[1]/section/main/div/header/section/div[2]/div/span/span[1]/button", "Seguir xPath");
+					
+					validateFollower(follow);
+				}else if(driver.searchElement(1, "/html/body/div[1]/section/main/div/header/section/div[1]/div[1]/span/span[1]/button") != 0) {
+					System.out.println("Seguir al usuario");
+					driver.clickButton(1, "/html/body/div[1]/section/main/div/header/section/div[1]/div[1]/span/span[1]/button", "Seguir xPath");
+					
+					validateFollower(follow);
+				}
+			}
+		}
+		
+		
+		robot.changeDeveloper(screen, PATH_IMAGES_SIKULI+"dev-tools-Chorme.png");
+		
+		
+	}
+	
+	private List<Integer> getnumbersRandom(int quantity){
+		List<Integer> list = new ArrayList<>();
+		
+		while(list.size() < 12) {
+			int random = getNumberRandomForSecond(1, quantity);
+			if(!list.contains(random)) list.add(random);
+		}
+		
+		return list;
+	}
+	
+	private void validateFollower(Follower follow) {
+		Follower f = new Follower();
+		f.setUser(follow.getUser());
+		f = f.find();
+		
+		if(f.getUser() == null) {
+			System.out.println("El usuario no esta en la base de datos.");
+			try {
+				follow.insert();
+				System.out.println("Usuario "+follow.getUser()+" agregado a la base de datos");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+			f = new Follower();
+			f.setUser(follow.getUser());
+			f = f.find();
+			
+		}
+		
+		User_Follower uf = new User_Follower();
+		uf.setUsers_id(idUser);
+		uf.setFollowers_id(f.getFollowers_id());
+		
+		uf = uf.validateMatch();
+		
+		if(uf == null) {
+			System.out.println("Agregar el match");
+			matchFollower(f);
+		}
+	}
+	
+	private void matchFollower(Follower follower) {
+		User_Follower uf = new User_Follower();
+		uf.setUsers_id(idUser);
+		uf.setFollowers_id(follower.getFollowers_id());
+		try {
+			uf.insert();
+			System.out.println("Match con usuario realizado");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	private void getFollowers() throws InterruptedException {
 		//Ir al perfil del usuario
 		robot.dimensions(1142, 967);
@@ -863,54 +975,25 @@ public class InicioController {
 		robot.clickPressed();
 		Thread.sleep(getNumberRandomForSecond(2001, 3099));
 		
-		robot.selectAll();
-		
-		Thread.sleep(getNumberRandomForSecond(2001, 3099));
-		
-		robot.copyCtrlC();
-		
-		Thread.sleep(getNumberRandomForSecond(2001, 3099));
-		
-		
-		new Thread(new Runnable() {
-			
-			public void run() {
-				try {
-					Thread.sleep(2556);
-					robot.paste();
-					Thread.sleep(14);
-					robot.enter();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					Thread.currentThread().interrupt();
-				}
-			}
-		}).start();
-		String linkInstagram = JOptionPane.showInputDialog("PRESIONAR ctrl+v Y PULSE ACEPTAR");
-		
-		System.out.println(linkInstagram);
 		
 		int followers = 0, following = 0;
-		String[] all = linkInstagram.split(" ");
-		
-		for(int i = 0; i<all.length;i++) {
-			if(all[i].equals("seguidores")) {
-				followers = Integer.parseInt(all[i-1]);
-			}else if(all[i].equals("seguidos")) {
-				following = Integer.parseInt(all[i-1]);
-			}
-		}
 		
 		
-		User_Follower userF = new User_Follower();
+		String folowersString = driver.getTitle(1, "/html/body/div[1]/section/main/div/header/section/ul/li[2]/a/span");
+		String followingString = driver.getText(1, "/html/body/div[1]/section/main/div/header/section/ul/li[3]/a/span");
+		
+		followers = Integer.parseInt(folowersString);
+		following = Integer.parseInt(followingString);
+		Follower_Report userF = new Follower_Report();
 		userF.setUsers_id(idUser);
 		userF.setFollowers(followers);
 		userF.setFollowing(following);
 		
 		userF = userF.find(idUser);
 		
+		
 		if(userF == null) {
-			userF = new User_Follower();
+			userF = new Follower_Report();
 			userF.setUsers_id(idUser);
 			userF.setFollowers(followers);
 			userF.setFollowing(following);

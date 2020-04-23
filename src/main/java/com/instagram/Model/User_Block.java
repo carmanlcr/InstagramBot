@@ -9,9 +9,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.instagram.Interface.Model;
 
 import configurations.connection.ConnectionIG;
+import configurations.interfaces.Model;
 
 
 public class User_Block implements Model{
@@ -135,5 +135,12 @@ public class User_Block implements Model{
 
 	public void setComentario(String comentario) {
 		this.comentario = comentario;
+	}
+
+
+	@Override
+	public void update() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -32,6 +32,11 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 
+
+/**
+ * @deprecated Se movio a la aplicación web
+ * 
+ */
 public class RegistrarUsuario extends JFrame {
 
 	/**

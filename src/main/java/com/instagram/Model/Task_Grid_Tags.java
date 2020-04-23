@@ -4,9 +4,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.instagram.Interface.Model;
 
 import configurations.connection.ConnectionIG;
+import configurations.interfaces.Model;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -102,6 +102,12 @@ public class Task_Grid_Tags implements Model {
 
 	public void setUpdated_at(String updated_at) {
 		this.updated_at = updated_at;
+	}
+
+	@Override
+	public void update() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

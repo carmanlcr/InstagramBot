@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.instagram.Interface.Model;
 
 import configurations.connection.ConnectionIG;
+import configurations.interfaces.Model;
 
 
 public class Post implements Model{
@@ -237,6 +237,12 @@ public class Post implements Model{
 
 	public void setUpdated_at(String updated_at) {
 		this.updated_at = updated_at;
+	}
+
+	@Override
+	public void update() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

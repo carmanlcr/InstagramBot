@@ -10,9 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.instagram.Interface.Model;
 
 import configurations.connection.ConnectionIG;
+import configurations.interfaces.Model;
 
 
 public class Categories implements Model{
@@ -196,6 +196,12 @@ public class Categories implements Model{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public void update() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

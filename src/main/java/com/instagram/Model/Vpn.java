@@ -12,10 +12,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import configurations.connection.ConnectionIG;
+import configurations.interfaces.Model;
 
 
 
-public class Vpn {
+public class Vpn implements Model{
 
 	private static final String TABLE_NAME = "vpn";
 	private int vpn_id;
@@ -155,13 +156,13 @@ public class Vpn {
 			
 		if(idVpn==0) {
 			setName(name);
-			insert();
+			insertVpn();
 		}
 		
 		return idVpn;
 	}
 	
-	public boolean insert() throws SQLException {
+	public boolean insertVpn() throws SQLException {
 		Statement st = null;
 		Connection conexion = conn.conectar();
 		date = new Date();
@@ -252,6 +253,18 @@ public class Vpn {
 
 	public void setUpdated_at(String updated_at) {
 		this.updated_at = updated_at;
+	}
+
+	@Override
+	public void insert() throws SQLException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void update() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 
 	

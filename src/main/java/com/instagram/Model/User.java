@@ -13,9 +13,9 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-import com.instagram.Interface.Model;
 
 import configurations.connection.ConnectionIG;
+import configurations.interfaces.Model;
 
 
 public class User implements Model{
@@ -391,6 +391,13 @@ public class User implements Model{
 
 	public void setBlock(boolean isBlock) {
 		this.isBlock = isBlock;
+	}
+
+
+	@Override
+	public void update() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 
 	

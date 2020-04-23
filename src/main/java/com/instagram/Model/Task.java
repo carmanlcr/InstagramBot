@@ -11,9 +11,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.instagram.Interface.Model;
 
 import configurations.connection.ConnectionIG;
+import configurations.interfaces.Model;
 
 
 public class Task implements Model{
@@ -99,6 +99,12 @@ public class Task implements Model{
 
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+
+	@Override
+	public void update() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 
 	

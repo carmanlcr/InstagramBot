@@ -7,9 +7,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.instagram.Interface.Model;
 
 import configurations.connection.ConnectionIG;
+import configurations.interfaces.Model;
 
 
 public class Post_Detail implements Model {
@@ -59,6 +59,12 @@ public class Post_Detail implements Model {
 
 	public void setCreated_at(String created_at) {
 		this.created_at = created_at;
+	}
+
+	@Override
+	public void update() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

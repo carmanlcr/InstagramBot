@@ -9,9 +9,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.instagram.Interface.Model;
 
 import configurations.connection.ConnectionIG;
+import configurations.interfaces.Model;
 
 
 
@@ -177,6 +177,12 @@ public class Path_Photo implements Model {
 
 	public void setGeneres_id(int generes_id) {
 		this.generes_id = generes_id;
+	}
+
+	@Override
+	public void update() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

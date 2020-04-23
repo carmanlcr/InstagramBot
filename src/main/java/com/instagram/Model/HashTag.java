@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.instagram.Interface.Model;
 
 import configurations.connection.ConnectionIG;
+import configurations.interfaces.Model;
 
 
 public class HashTag implements Model{
@@ -187,6 +187,12 @@ public class HashTag implements Model{
 
 	public void setGeneres_id(int generes_id) {
 		this.generes_id = generes_id;
+	}
+
+	@Override
+	public void update() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

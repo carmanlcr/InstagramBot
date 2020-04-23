@@ -68,7 +68,7 @@ public class RegistrarVPN extends JFrame {
 				Vpn vpn = new Vpn();
 				vpn.setName(textField.getText());
 				try {
-					if(vpn.insert()){
+					if(vpn.insertVpn()){
 						JOptionPane.showMessageDialog(null, "Registrado con exito");
 					}else {
 						JOptionPane.showMessageDialog(null, "Error al registrar, consulte con el departamento de sistemas");

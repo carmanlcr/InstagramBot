@@ -7,9 +7,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.instagram.Interface.Model;
 
 import configurations.connection.ConnectionIG;
+import configurations.interfaces.Model;
 
 
 public class Inicio_Aplicacion implements Model{
@@ -84,5 +84,11 @@ public class Inicio_Aplicacion implements Model{
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	@Override
+	public void update() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.instagram.Interface.Model;
 
 import configurations.connection.ConnectionIG;
+import configurations.interfaces.Model;
 
 
 
@@ -166,6 +166,13 @@ public class Genere implements Model{
 
 	public void setCategories_id(int categories_id) {
 		this.categories_id = categories_id;
+	}
+
+
+	@Override
+	public void update() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 
 	

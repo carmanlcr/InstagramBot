@@ -11,9 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.instagram.Interface.Model;
 
 import configurations.connection.ConnectionIG;
+import configurations.interfaces.Model;
 
 
 public class Task_Grid implements Model {
@@ -293,6 +293,13 @@ public class Task_Grid implements Model {
 
 	public void setDb_admin_tasks_id(int db_admin_tasks_id) {
 		this.db_admin_tasks_id = db_admin_tasks_id;
+	}
+
+
+	@Override
+	public void update() throws SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 
 
