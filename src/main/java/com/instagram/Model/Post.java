@@ -25,6 +25,7 @@ public class Post implements Model{
 	private int tasks_model_id;
 	private int phrases_id;
 	private int tasks_grid_id;
+	private int tasks_maduration_id;
 	private String link_publication;
 	private String user_transmition;
 	private String link_instagram;
@@ -43,8 +44,8 @@ public class Post implements Model{
 		setCreated_at(dateFormat.format(date));
 		setUpdated_at(dateFormat.format(date));
 		String insert = "INSERT INTO "+TABLE_NAME+" "
-				+ "(users_id,categories_id,tasks_model_id,phrases_id,tasks_grid_id,link_publication,user_transmition,link_instagram,created_at,updated_at) "
-				+ " VALUE (?,?,?,?,?,?,?,?,?,?);";
+				+ "(users_id,categories_id,tasks_model_id,phrases_id,tasks_grid_id,tasks_maduration_id,link_publication,user_transmition,link_instagram,created_at,updated_at) "
+				+ " VALUE (?,?,?,?,?,?,?,?,?,?,?);";
 		try (Connection conexion = conn.conectar();
 				PreparedStatement  query = conexion.prepareStatement(insert);){
 			
@@ -55,11 +56,12 @@ public class Post implements Model{
 			query.setInt(3, getTasks_model_id());
 			query.setInt(4, getPhrases_id());
 			query.setInt(5, getTasks_grid_id());
-			query.setString(6, getLink_publcation());
-			query.setString(7, getUser_transmition());
-			query.setString(8, getLink_instagram());
-			query.setString(9, getCreated_at());
-			query.setString(10, getUpdated_at());
+			query.setInt(6, getTasks_maduration_id());
+			query.setString(7, getLink_publcation());
+			query.setString(8, getUser_transmition());
+			query.setString(9, getLink_instagram());
+			query.setString(10, getCreated_at());
+			query.setString(11, getUpdated_at());
 			query.executeUpdate();
 			
 			conexion.close();
@@ -189,6 +191,14 @@ public class Post implements Model{
 
 	public void setTasks_grid_id(int tasks_grid_id) {
 		this.tasks_grid_id = tasks_grid_id;
+	}
+
+	public int getTasks_maduration_id() {
+		return tasks_maduration_id;
+	}
+
+	public void setTasks_maduration_id(int tasks_maduration_id) {
+		this.tasks_maduration_id = tasks_maduration_id;
 	}
 
 	public String getLink_publication() {
