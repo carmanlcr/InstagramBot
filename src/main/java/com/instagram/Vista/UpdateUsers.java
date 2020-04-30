@@ -13,7 +13,11 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JScrollPane;
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -36,9 +40,10 @@ public class UpdateUsers extends JFrame {
 	private JLabel lblCategoras = new JLabel("Categorías");
 	private JButton btnActualizar = new JButton("Actualizar");
 	private JPanel panel = new JPanel();
+	private Map<String, Integer> categories = new HashMap<>();
+	private Map<String, Integer> categories1 = new HashMap<>();
 	private JComboBox<String> comboBox = new JComboBox<>();
 	private JComboBox<String> comboBox_1 = new JComboBox<>();
-	private Categories cate = new Categories();
 	private List<JCheckBox> listCheck;
 	private List<String> listUsersSelected = new ArrayList<>();
 	/**
@@ -68,9 +73,14 @@ public class UpdateUsers extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		
-		List<String> list = cate.getAllActive();
-		for(String st : list) comboBox.addItem(st);
-		for(String sta : list) comboBox_1.addItem(sta);
+		Categories cate = new Categories();
+		categories = cate.getComboBox();
+		categories1 = cate.getComboBox();
+		
+		SortedSet<String> keys = new TreeSet<>(categories.keySet());
+		SortedSet<String> keys1 = new TreeSet<>(categories1.keySet());
+		setComboBoxCategorias(keys,comboBox);
+		setComboBoxCategorias(keys1,comboBox_1);
 		
 		JLabel lblNewLabel = new JLabel("Cambio de Categoria");
 		
@@ -92,7 +102,7 @@ public class UpdateUsers extends JFrame {
 						User us = new User();
 						us.setUsername(l);
 						User_Categorie usc = new User_Categorie();
-						usc.setCategories_id(comboBox_1.getSelectedIndex()+1);
+						usc.setCategories_id(Integer.parseInt(categories1.get(comboBox_1.getSelectedItem().toString()).toString()));
 						usc.setUsers_id(us.getIdUser());
 						try {
 							usc.updateCategories();
@@ -155,7 +165,7 @@ public class UpdateUsers extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				panel.removeAll();
 				panel.updateUI();
-				int idCategoria = comboBox.getSelectedIndex() +1 ;
+				int idCategoria = Integer.parseInt(categories.get(comboBox.getSelectedItem().toString()).toString());
 				User us = new User();
 				us.setCategories_id(idCategoria);
 				try {
@@ -179,5 +189,13 @@ public class UpdateUsers extends JFrame {
 		scrollPane.setViewportView(panel);
 		panel.setLayout(new GridLayout(0, 2, 0, 0));
 		contentPane.setLayout(gl_contentPane);
+	}
+	
+private JComboBox<String> setComboBoxCategorias(SortedSet<String> keys, JComboBox<String> combo) {
+		
+		for (String string : keys) {
+			combo.addItem(string);
+		}
+	    return combo;
 	}
 }
