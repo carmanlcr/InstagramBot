@@ -18,10 +18,7 @@ import org.sikuli.script.Screen;
 
 import com.instagram.Model.Account_Instagram;
 import com.instagram.Model.Account_Instagram_User;
-import com.instagram.Model.Categories;
 import com.instagram.Model.Follower;
-import com.instagram.Model.Path_Photo;
-import com.instagram.Model.Phrases;
 import com.instagram.Model.Post;
 import com.instagram.Model.Task_Grid;
 import com.instagram.Model.Task_Grid_Tags;
@@ -33,6 +30,7 @@ import com.instagram.Model.Follower_Report;
 import com.instagram.Model.Vpn;
 
 import configurations.controller.VpnController;
+import configurations.model.Task_Maduration;
 import configurations.controller.DriverController;
 import configurations.controller.RobotController;
 import configurations.controller.SftpController;
@@ -51,6 +49,7 @@ public class InicioController {
 	private int idUser;
 	private int categoriaId;
 	private int tasksGridId;
+	private int languages_id;
 	private String phrase;
 	private String image;
 	private boolean isPublication;
@@ -102,6 +101,7 @@ public class InicioController {
 						image = taskG.getImage();
 						isPublication = taskG.isPublication();
 						tasksGridId = taskG.getTasks_grid_id();
+						languages_id = taskG.getLanguages_id();
 						
 						int idlistTask = po.getLastsTasktPublic();
 						
@@ -111,7 +111,7 @@ public class InicioController {
 							robot = new RobotController();
 							String ip = validateIP();
 							String ipActual = "01.02.03.04";
-							if(0 != 0) {
+							if(users.getVpn_id() != 0) {
 								Vpn v = new Vpn();
 								v.setVpn_id(users.getVpn_id());
 								v = v.getVpn();
@@ -129,9 +129,12 @@ public class InicioController {
 								driver = new DriverController();
 							    driver.optionsChrome();
 								Thread.sleep(getNumberRandomForSecond(2540, 4150));
-								driver.goPage(PAGE);
+								do
+									driver.goPage(PAGE);
+								while(!driver.getCurrentUrl().equalsIgnoreCase(PAGE));
+								
 								Thread.sleep(2300);
-								IniciaSesion sesion = new IniciaSesion("carmanandres","Instagraml4ms",screen);
+								IniciaSesion sesion = new IniciaSesion(users.getUsername(),users.getPassword(),screen);
 								int resultSession =sesion.init();
 								
 								switch(resultSession) {
@@ -244,7 +247,6 @@ public class InicioController {
 	
 	private void random(List<Integer> listTask, int taskModelId) throws InterruptedException, SQLException {
 		for(Integer li : listTask) {
-			li = 7;
 			switch(li) {
 				case 1:
 					break;
@@ -271,10 +273,10 @@ public class InicioController {
 					break;
 				case 6:
 					//Publicacion normal
-					uploadImage();
+					addPostNormal();
 					break;
 				case 7:
-					followUsers();
+					//followUsers();
 					break;
 				case 8:
 					getFollowers();
@@ -313,10 +315,16 @@ public class InicioController {
 				robot.clickPressed();
 			}
 			
+			Thread.sleep(getNumberRandomForSecond(6548, 7572));
+			robot.enter();
+			robot.enter();
+			
+			Thread.sleep(getNumberRandomForSecond(1548, 1572));
 			robot.copy(PATH_IMAGES_SFTP+image);
-			Thread.sleep(getNumberRandomForSecond(5548, 6572));
 			robot.paste();
 			
+			Thread.sleep(getNumberRandomForSecond(1048, 1572));
+			robot.enter();
 			Thread.sleep(getNumberRandomForSecond(3548, 4572));
 			
 			System.out.println("Siguiente");
@@ -347,17 +355,36 @@ public class InicioController {
 			System.out.println("No hay imagen, no se puede subir");
 		}
 		
+	}
+	
+	private void addPostNormal() throws InterruptedException, SQLException {
+		
+		
+		Task_Maduration tMaduration = new Task_Maduration();
+		tMaduration.setLanguages(languages_id);
+		tMaduration = tMaduration.getTaskMadurationInstagram(idUser);
+		
+		if(tMaduration == null) {
+			tMaduration = new Task_Maduration();
+			tMaduration.setLanguages(languages_id);
+			tMaduration = tMaduration.getTaskMaduratioRandomnInstagram();	
+		}
+		
+		System.out.println("Descargando imagen "+tMaduration.getImage());
+		SftpController sftp = new SftpController();
+		sftp.downloadFileSftp(SftpController.PATH_IMAGE_MADURATION_UPLOAD, tMaduration.getImage(), SftpController.PATH_IMAGE_DOWNLOAD_FTP);
+		uploadImage(tMaduration);
+		
 		
 	}
 	
-	private void uploadImage() throws InterruptedException, SQLException {
-		Categories ca = new Categories();
-		List<String> la = ca.getSubCategorieConcat();
-		if(la.isEmpty()) {
-			int value = (int) (Math.random() * 100000) + 1;
-			int dimensionx = (int) (Math.random() * 3) + 0;
-			int dimensiony = (int) (Math.random() * 5) + 0;
+	private void uploadImage(Task_Maduration tMaduration) throws InterruptedException {
+		
+		File archivo1 = new File(PATH_IMAGES_SFTP+tMaduration.getImage());
+		if(archivo1.exists()) {
+			//Si el archivo existe hacer el procedimiento de subir la imagen
 			System.out.println("Abrir el selector de imagenes");
+			
 			if(screen.exists(PATH_IMAGES_SIKULI+"add-images.png") != null) {
 				clickException(PATH_IMAGES_SIKULI+"add-images.png");
 			}else {
@@ -365,98 +392,54 @@ public class InicioController {
 				Thread.sleep(getNumberRandomForSecond(256, 985));
 				robot.clickPressed();
 			}
+			
+			
+			Thread.sleep(getNumberRandomForSecond(5548, 6572));
+			robot.enter();
+			robot.enter();
+			Thread.sleep(getNumberRandomForSecond(1000, 2072));
+			robot.inputWrite(PATH_IMAGES_SFTP+tMaduration.getImage());
+			
+			Thread.sleep(getNumberRandomForSecond(1000, 2072));
+			robot.enter();
+			
 			Thread.sleep(getNumberRandomForSecond(3548, 4572));
-			
-			//Darle click a la carpeta imagenes
-			RobotController click = new RobotController();
-			System.out.println("Abierto el buscador de fotos");
-			click.maxiIzquierda();
-			Thread.sleep(getNumberRandomForSecond(2001, 2099));
-			click.dimensions(364, 44);
-			//Hacer click
-			click.clickPressed();
-			Thread.sleep(getNumberRandomForSecond(1502, 1539));
-			
-			Path_Photo pathP = new Path_Photo();
-			int categorieId = Integer.parseInt(la.get(0));
-			int subCateId = Integer.parseInt(la.get(2));
-			System.out.println("Buscar direccion de fotos");
-			pathP.setCategories_id(categorieId);				
-			pathP.setSub_categories_id(subCateId);
-			String pathPho = pathP.getPathPhotos();
-			click.copy(pathPho);
-			System.out.println("La direcci�n a buscar en fotos es: "+pathPho);
-			Thread.sleep(getNumberRandomForSecond(720, 853));
-			click.paste();
-			Thread.sleep(getNumberRandomForSecond(720, 854));
-			click.enter();
-				
-			Thread.sleep(getNumberRandomForSecond(2001, 2098));
-					
-			click.dimensions(220, 180);
-			click.clickPressed();
-			for(int i = 0; i <= value;i++) {
-				click.mouseScroll(1);
-			}
-			
-			System.out.println("Elegir una foto de manera aleatoria");
-			int[] arrayx = new int[4];
-			int[] arrayy = new int[6];
-			arrayx[0] = 220;
-			arrayx[1] = 330;
-			arrayx[2] = 440;
-			arrayx[3] = 540;
-			arrayy[0] = 180;
-			arrayy[1] = 280;
-			arrayy[2] = 420;
-			arrayy[3] = 540;
-			arrayy[4] = 680;
-			arrayy[5] = 810;
-			Thread.sleep(getNumberRandomForSecond(2001, 2099));
-			click.dimensions(arrayx[dimensionx], arrayy[dimensiony]);
-			//Hacer doble click
-			click.clickPressed();
-			click.clickPressed();
-			System.out.println("Seleccionar foto");
-			
 			
 			System.out.println("Siguiente");
 			robot.dimensions(1215, 132);
 			Thread.sleep(getNumberRandomForSecond(478, 896));
 			robot.clickPressed();
 			Thread.sleep(getNumberRandomForSecond(2489, 3549));
-			
-			Thread.sleep(2000); 
-			//Escribir pie de foto
-			Phrases frase = new Phrases();
-			frase.setCategories_id(categorieId);
-			frase.setSub_categories_id(subCateId);
-			String phraseRandom = frase.getPhraseRandomSubCategorie();
-			System.out.println("Encontrar frase");
+
+		    
+			//234, 192
 			robot.dimensions(234, 192);
 			Thread.sleep(getNumberRandomForSecond(478, 896));
 			robot.clickPressed();
 			Thread.sleep(getNumberRandomForSecond(2489, 3549));
-			robot.inputWrite(phraseRandom);
+			
+			System.out.println("Escribir frase");
+			
+			robot.inputWriteUsers(tMaduration.getPhrase());
 			Thread.sleep(getNumberRandomForSecond(1489, 1549));
-			//1215,134
 			
 			robot.dimensions(1215, 134);
 			Thread.sleep(getNumberRandomForSecond(478, 896));
 			robot.clickPressed();
 			System.out.println("El usuario hizo la publicaci�n correctamente.");
-			
+			archivo1.delete();
 			Thread.sleep(getNumberRandomForSecond(8001, 10099));
 			
-			Thread.sleep(getNumberRandomForSecond(2001, 2099)); 
-			//Compartir foto
+			po.setCategories_id(categoriaId);
+			po.setTasks_maduration_id(tMaduration.getTasks_Maduration_id());
+			po.setTasks_grid_id(0);
+			po.setTasks_model_id(0);
+			po.insert();
 		}else {
-			System.out.println("El usuario no puede publicar normal ya que las subcategorias no contienen, frase o direccion de fotos");
+			System.out.println("No hay imagen, no se puede subir");
 		}
 		
-		
 	}
-	
 
 	
 	
@@ -512,13 +495,11 @@ public class InicioController {
 	private void reviewMessage() throws InterruptedException {
 		System.out.println("REVISAR LOS MENSAJES");
 		
-		if(screen.exists(PATH_IMAGES_SIKULI+"message.png") != null) {
-			clickException(PATH_IMAGES_SIKULI+"message.png");
-		}else {
-			robot.dimensions(1242, 125);
-			Thread.sleep(getNumberRandomForSecond(689, 897));
-			robot.clickPressed();
-		}
+		
+		robot.dimensions(1242, 125);
+		Thread.sleep(getNumberRandomForSecond(689, 897));
+		robot.clickPressed();
+		
 		
 		Thread.sleep(2500);
 		

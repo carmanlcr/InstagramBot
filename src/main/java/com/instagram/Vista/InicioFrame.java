@@ -39,7 +39,7 @@ public class InicioFrame extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final String VERSION = "2.1.8";
+	private static final String VERSION = "2.2.0";
 	private JPanel contentPane;
 	private final JMenuBar barMenu = new JMenuBar();
 	private final JMenu mnUsuarios = new JMenu("Usuarios");
@@ -48,18 +48,8 @@ public class InicioFrame extends JFrame {
 	private final JMenu mnVpn = new JMenu("Vpn");
 	private final JMenuItem registrarVpn = new JMenuItem("Registrar");
 	private final JMenuItem actualizarVpn = new JMenuItem("Actualizar");
-	private final JMenu mnCategorias = new JMenu("Categorias");
-	private final JMenuItem registrarCategoria = new JMenuItem("Registrar");
-	private final JMenuItem mntmRegistrarSubCategorie = new JMenuItem("Registrar Sub Categoria");
-	private final JMenu mnFrases = new JMenu("Frases");
-	private final JMenuItem registrarFrase = new JMenuItem("Registrar");
-	private final JMenuItem registrarHashTag = new JMenuItem("Registrar Hashtag"); 
-	private final JMenu mnGenero = new JMenu("Genero");
-	private final JMenuItem registrarGenero = new JMenuItem("Registrar Genero");
 	private final JMenu mnTask = new JMenu("Tarea");
 	private final JMenuItem registrarTarea = new JMenuItem("Registrar Tarea");
-	private final JMenu mnPhotos = new JMenu("Fotos");
-	private final JMenuItem registrarDireccionDeFotos = new JMenuItem("Registrar Fotos");
 	private static JComboBox<String> comboBox = new JComboBox<>();
 	private static JComboBox<String> comboBox1 = new JComboBox<>();
 	private static Map<String, Integer> hashCa;
@@ -78,41 +68,54 @@ public class InicioFrame extends JFrame {
 		SikuliTest si = new SikuliTest();
 		si.run();
 		s = si.getScreen();
+		iniApli.setVersion(VERSION);
+		if(args.length > 0) {
+			iniApli.setVersion(VERSION);
+			Ejecucion eje;
+			try {
+				eje = new Ejecucion(Integer.parseInt(args[0]),Integer.parseInt(args[1]),iniApli,s, Boolean.parseBoolean(args[2]));
+				eje.inicio();
+			} catch (NumberFormatException | SQLException e) {
+				e.printStackTrace();
+			} 
+			
+		}else {
+			
 		
-		
-		final Task_Grid taskG = new Task_Grid();
-		hashCa = taskG.getCategoriesToday();
-		setComboBox(hashCa);
-		
-		comboBox.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				comboBox1.removeAll();
-				comboBox1.removeAllItems();
-				taskG.setCategories_id(Integer.parseInt(hashCa.get(comboBox.getSelectedItem().toString()).toString()));
-				hashGe = taskG.getCategoriesAndGeneresToday();
-				for(String st : hashGe.keySet()) comboBox1.addItem(st);
-				
-				if(hashGe.size() > 0) {
-					empezar.setEnabled(true);
+			final Task_Grid taskG = new Task_Grid();
+			hashCa = taskG.getCategoriesToday();
+			setComboBox(hashCa);
+			
+			comboBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					comboBox1.removeAll();
+					comboBox1.removeAllItems();
+					taskG.setCategories_id(Integer.parseInt(hashCa.get(comboBox.getSelectedItem().toString()).toString()));
+					hashGe = taskG.getCategoriesAndGeneresToday();
+					for(String st : hashGe.keySet()) comboBox1.addItem(st);
+					
+					if(hashGe.size() > 0) {
+						empezar.setEnabled(true);
+					}
 				}
+			});
+			
+			if(hashGe.size() > 0) {
+				empezar.setEnabled(true);
 			}
-		});
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					try {
+						InicioFrame frame = new InicioFrame();
+						frame.setVisible(true);
+	
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
 		
-		if(hashGe.size() > 0) {
-			empezar.setEnabled(true);
 		}
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					InicioFrame frame = new InicioFrame();
-					frame.setVisible(true);
-
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		
 		
 	}
 
@@ -168,77 +171,7 @@ public class InicioFrame extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		
-		mnCategorias.add(registrarCategoria);
-		mnCategorias.add(mntmRegistrarSubCategorie);
-		barMenu.add(mnCategorias);
-		
-		registrarCategoria.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				RegistrarCategories registrar = new RegistrarCategories();
-				registrar.inicio();
-			}
-		});
-		
-		mntmRegistrarSubCategorie.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent arg0) {
-				RegistrarSubCategorie regis;
-				try {
-					regis = new RegistrarSubCategorie();
-					regis.init();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				
-				
-			}
-		});
-		
-		
-		mnFrases.add(registrarFrase);
-		mnFrases.add(registrarHashTag);
-		barMenu.add(mnFrases);
-		
-		registrarFrase.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				RegistrarFrase registrar;
-				
-					registrar = new RegistrarFrase();
-					registrar.inicio();
-				
-				
-			}
-		});
-		
-		registrarHashTag.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				RegistrarHashTag registrar;
-				try {
-					registrar = new RegistrarHashTag();
-					registrar.inicio();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-				
-				
-			}
-		});
-		
-		
-		mnGenero.add(registrarGenero);
-		barMenu.add(mnGenero);
-		
-		registrarGenero.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent arg0) {
-				RegistrarGenero registrar = new RegistrarGenero();
-				registrar.inicio();
-			}
-			
-		});
 		
 		mnTask.add(registrarTarea);
 		barMenu.add(mnTask);
@@ -250,15 +183,6 @@ public class InicioFrame extends JFrame {
 			}
 		});
 		
-		mnPhotos.add(registrarDireccionDeFotos);
-		barMenu.add(mnPhotos);
-		
-		registrarDireccionDeFotos.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				RegistrarDireccionFotos dirFotos = new RegistrarDireccionFotos();
-				dirFotos.inicio();
-			}
-		});
 		
 		JLabel lblNewLabel = new JLabel(VERSION);
 		lblNewLabel.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -305,14 +229,14 @@ public class InicioFrame extends JFrame {
 					.addGap(36))
 		);
 		contentPane.setLayout(glContentPane);
-		iniApli.setVersion(VERSION);
+		
 		empezar.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
 				try {
 					int id = Integer.parseInt(hashCa.get(comboBox.getSelectedItem().toString()).toString());
 					int idGenere = Integer.parseInt(hashGe.get(comboBox1.getSelectedItem().toString()).toString());
-					Ejecucion eje = new Ejecucion(id,idGenere,iniApli,s);
+					Ejecucion eje = new Ejecucion(id,idGenere,iniApli,s,true);
 					setExtendedState(ICONIFIED);
 					eje.inicio();
 				} catch (SQLException e1) {
