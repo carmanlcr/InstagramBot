@@ -26,6 +26,13 @@ import com.instagram.Model.*;
 
 import javax.swing.event.PopupMenuEvent;
 
+/**
+ * Movido al aplicativo web
+ * 
+ * 
+ * @author Luis Morales
+ * @deprecated
+ */
 public class RegistrarFrase extends JFrame {
 
 	/**

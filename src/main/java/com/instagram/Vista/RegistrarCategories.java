@@ -2,6 +2,7 @@ package com.instagram.Vista;
 
 
 import javax.swing.JFrame;
+
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -18,6 +19,14 @@ import javax.swing.JButton;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
+/**
+ * Movido al aplicativo web
+ * 
+ * 
+ * @author Luis Morales
+ * @deprecated
+ */
 public class RegistrarCategories extends JFrame {
 
 	/**

@@ -22,6 +22,14 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+
+/**
+ * Movido al aplicativo web
+ * 
+ * 
+ * @author Luis Morales
+ * @deprecated
+ */
 public class RegistrarSubCategorie extends JFrame {
 
 	/**

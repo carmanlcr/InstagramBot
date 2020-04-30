@@ -24,6 +24,14 @@ import java.sql.SQLException;
 import java.util.List;
 import java.awt.event.ActionEvent;
 
+
+/**
+ * Movido al aplicativo web
+ * 
+ * 
+ * @author Luis Morales
+ * @deprecated
+ */
 public class RegistrarHashTag extends JFrame {
 
 	/**
