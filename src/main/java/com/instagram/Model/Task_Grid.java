@@ -28,6 +28,7 @@ public class Task_Grid implements Model {
 	private boolean isFanPage;
 	private boolean isGroups;
 	private boolean isPublication;
+	private int languages_id;
 	private int quantity_groups;
 	private int quantity_min;
 	private boolean active;
@@ -121,6 +122,7 @@ public class Task_Grid implements Model {
 				taskG.setTasks_grid_id(rs.getInt("tg.tasks_grid_id"));
 				taskG.setCategories_id(rs.getInt("tg.categories_id"));
 				taskG.setGeneres_id(rs.getInt("tg.generes_id"));
+				taskG.setLanguages_id(rs.getInt("tg.languages_id"));
 				taskG.setPhrase(rs.getString("tg.phrase"));
 				taskG.setImage(rs.getString("tg.image"));
 				taskG.setPublication(rs.getBoolean("tg.isPublication"));
@@ -158,6 +160,7 @@ public class Task_Grid implements Model {
 				taskG.setTasks_grid_id(rs.getInt("tg.tasks_grid_id"));
 				taskG.setCategories_id(rs.getInt("tg.categories_id"));
 				taskG.setGeneres_id(rs.getInt("tg.generes_id"));
+				taskG.setLanguages_id(rs.getInt("tg.languages_id"));
 				taskG.setPhrase(rs.getString("tg.phrase"));
 				taskG.setImage(rs.getString("tg.image"));
 				taskG.setPublication(rs.getBoolean("tg.isPublication"));
@@ -196,6 +199,16 @@ public class Task_Grid implements Model {
 	public void setGeneres_id(int generes_id) {
 		this.generes_id = generes_id;
 	}
+
+	public int getLanguages_id() {
+		return languages_id;
+	}
+
+
+	public void setLanguages_id(int languages_id) {
+		this.languages_id = languages_id;
+	}
+
 
 	public String getPhrase() {
 		return phrase;
