@@ -73,13 +73,35 @@ public class User_Follower implements Model {
 		return uf;
 	}
 	
-	public List<User_Follower> getUserFollowe(){
-		List<User_Follower> list = new ArrayList<>();
+	public List<Follower> getUserFollowe(){
+		List<Follower> list = new ArrayList<>();
 		Date date = new Date();
 		StringBuilder string = new StringBuilder();
-		string.append("SELECT * FROM "+TABLE_NAME);
-		string.append(" WHERE useRs_id = ? AND active = 1 ");
-		string.append("AND DATE(created_at) >= DATE_SUB(?,INTERVAL  )");
+		string.append("SELECT fo.followers_id, fo.user, fo.name, fo.link FROM "+TABLE_NAME+" uf ");
+		string.append("INNER JOIN followers fo ON fo.followers_id = uf.followers_id");
+		string.append("WHERE uf.users_id = ? AND uf.active = 1 ");
+		string.append("DATE(uf.created_at) <> ? ");
+		string.append("ORDER BY uf.created_at DESC LIMIT 8;");
+		
+		try(Connection conexion = conn.conectar();
+				PreparedStatement pre = conexion.prepareStatement(string.toString());){
+			pre.setInt(1, getUsers_id());
+			pre.setString(2, dateFormat.format(date));
+			
+			ResultSet rs = pre.executeQuery();
+			
+			if(rs.next()) {
+				Follower folo = new Follower();
+				folo.setFollowers_id(rs.getInt("fo.followers_id"));
+				folo.setUser(rs.getString("fo.user"));
+				folo.setName(rs.getString("fo.name"));
+				folo.setLink(rs.getString("fo.link"));
+				list.add(folo);
+			}
+		}catch(SQLException e) {
+			System.err.println(e);
+		}
+		
 		
 		return list;
 	}

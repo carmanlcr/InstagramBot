@@ -104,6 +104,73 @@ public class Ejecucion extends JFrame {
 		//Se crear el boton de empezar y se agrega su ActionListener
 		JButton btnEmpezar = new JButton("Empezar");
 		
+		
+		JLabel lblTotal = new JLabel("Total");
+		lblTotal.setBackground(new Color(0, 0, 128));
+		lblTotal.setFont(new Font("Arial", Font.PLAIN, 12));
+		GroupLayout glContentPane = new GroupLayout(contentPane);
+		glContentPane.setHorizontalGroup(
+			glContentPane.createParallelGroup(Alignment.TRAILING)
+				.addGroup(glContentPane.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(glContentPane.createParallelGroup(Alignment.LEADING)
+						.addGroup(glContentPane.createSequentialGroup()
+							.addComponent(lblTotal)
+							.addGap(83))
+						.addGroup(glContentPane.createSequentialGroup()
+							.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 759, Short.MAX_VALUE)
+							.addContainerGap())
+						.addGroup(Alignment.TRAILING, glContentPane.createSequentialGroup()
+							.addComponent(btnEmpezar, GroupLayout.PREFERRED_SIZE, 95, GroupLayout.PREFERRED_SIZE)
+							.addGap(340))))
+		);
+		glContentPane.setVerticalGroup(
+			glContentPane.createParallelGroup(Alignment.LEADING)
+				.addGroup(glContentPane.createSequentialGroup()
+					.addGap(18)
+					.addComponent(lblTotal)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 503, GroupLayout.PREFERRED_SIZE)
+					.addGap(39)
+					.addComponent(btnEmpezar, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(75, Short.MAX_VALUE))
+		);
+		
+		
+		list = user.getUserCategorieAndGenere(categoriaId,generesId);
+		scrollPane.setViewportView(panelUsuario);
+		
+
+		
+		JMenuItem mntmNewMenuItem = new JMenuItem("Desbloquear");
+		
+		panelUsuario.setLayout(new GridLayout(0, 3, 0, 0));
+		
+		Post post = new Post();
+		listPost = post.getCountPostUsers(categoriaId);
+		
+		JPopupMenu popMenu = new JPopupMenu();
+		popMenu.add(mntmNewMenuItem);
+		//Agregar a los usuarios al panel 
+		for (String usuarios : list) {
+			JLabel chckbxNewCheckBox = new JLabel(usuarios);
+			listCheckBoxUsers.add(chckbxNewCheckBox);
+			
+			//Agregar a los usuarios la cantidad de post en el d�a
+			for(String[] pt : listPost) {
+				if(pt[0].equals(usuarios)) {
+					chckbxNewCheckBox.setText(chckbxNewCheckBox.getText()+" ("+pt[1]+")");
+					break;
+				}
+			}
+			
+			
+			panelUsuario.add(chckbxNewCheckBox);
+			totalUser++;
+		}
+		
+		lblTotal.setText(lblTotal.getText()+": "+totalUser);
+		
 		if(isManual) {
 			//Se empieza el proceso de post
 			btnEmpezar.addActionListener(new ActionListener() {
@@ -170,76 +237,6 @@ public class Ejecucion extends JFrame {
 				} 
 			}
 		}
-		
-		
-		JLabel lblTotal = new JLabel("Total");
-		lblTotal.setBackground(new Color(0, 0, 128));
-		lblTotal.setFont(new Font("Arial", Font.PLAIN, 12));
-		GroupLayout glContentPane = new GroupLayout(contentPane);
-		glContentPane.setHorizontalGroup(
-			glContentPane.createParallelGroup(Alignment.TRAILING)
-				.addGroup(glContentPane.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(glContentPane.createParallelGroup(Alignment.LEADING)
-						.addGroup(glContentPane.createSequentialGroup()
-							.addComponent(lblTotal)
-							.addGap(83))
-						.addGroup(glContentPane.createSequentialGroup()
-							.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 759, Short.MAX_VALUE)
-							.addContainerGap())
-						.addGroup(Alignment.TRAILING, glContentPane.createSequentialGroup()
-							.addComponent(btnEmpezar, GroupLayout.PREFERRED_SIZE, 95, GroupLayout.PREFERRED_SIZE)
-							.addGap(340))))
-		);
-		glContentPane.setVerticalGroup(
-			glContentPane.createParallelGroup(Alignment.LEADING)
-				.addGroup(glContentPane.createSequentialGroup()
-					.addGap(18)
-					.addComponent(lblTotal)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 503, GroupLayout.PREFERRED_SIZE)
-					.addGap(39)
-					.addComponent(btnEmpezar, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(75, Short.MAX_VALUE))
-		);
-		
-		
-		list = user.getUserCategorieAndGenere(categoriaId,generesId);
-		if(list.isEmpty()) {
-			JOptionPane.showMessageDialog(null, "YA NO HAY TAREAS PARA HOY PARA ESTA CAMPANA");
-		}
-		scrollPane.setViewportView(panelUsuario);
-		
-
-		
-		JMenuItem mntmNewMenuItem = new JMenuItem("Desbloquear");
-		
-		panelUsuario.setLayout(new GridLayout(0, 3, 0, 0));
-		
-		Post post = new Post();
-		listPost = post.getCountPostUsers(categoriaId);
-		
-		JPopupMenu popMenu = new JPopupMenu();
-		popMenu.add(mntmNewMenuItem);
-		//Agregar a los usuarios al panel 
-		for (String usuarios : list) {
-			JLabel chckbxNewCheckBox = new JLabel(usuarios);
-			listCheckBoxUsers.add(chckbxNewCheckBox);
-			
-			//Agregar a los usuarios la cantidad de post en el d�a
-			for(String[] pt : listPost) {
-				if(pt[0].equals(usuarios)) {
-					chckbxNewCheckBox.setText(chckbxNewCheckBox.getText()+" ("+pt[1]+")");
-					break;
-				}
-			}
-			
-			
-			panelUsuario.add(chckbxNewCheckBox);
-			totalUser++;
-		}
-		
-		lblTotal.setText(lblTotal.getText()+": "+totalUser);
 
 		contentPane.setLayout(glContentPane);
 	}

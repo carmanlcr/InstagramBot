@@ -111,27 +111,35 @@ public class InicioController {
 							robot = new RobotController();
 							String ip = validateIP();
 							String ipActual = "01.02.03.04";
+							Vpn v = new Vpn();
+							v.setVpn_id(users.getVpn_id());
+							v = v.getVpn();
 							if(users.getVpn_id() != 0) {
-								Vpn v = new Vpn();
-								v.setVpn_id(users.getVpn_id());
-								v = v.getVpn();
 								vpn = new VpnController(v.getName());
-								vpn.connectVpn();
+								vpn.connectVpnName();
+								ipActual = validateIP();
+							}
+							
+							if(ip.equals(ipActual)) {
+								String[] groupVpn = v.getName().split("#");
+								vpn = new VpnController(groupVpn[0].trim());
+								vpn.connectVpnGroup();
 								ipActual = validateIP();
 							}
 							
 							//Valida si la vpn conecto
 							if(ip.equals(ipActual)) {	
 								System.err.println("El usuario "+users.getUsername()+ " no se puedo conectar a la vpn");
-								usuariosAProcesar++;
 							}else {
 								//Lanzamiento de la pagina   
 								driver = new DriverController();
 							    driver.optionsChrome();
 								Thread.sleep(getNumberRandomForSecond(2540, 4150));
-								do
+								do {
+									
 									driver.goPage(PAGE);
-								while(!driver.getCurrentUrl().equalsIgnoreCase(PAGE));
+									Thread.sleep(5000);
+								}while(screen.exists("C:\\ImagenesSikuli\\username-Instagram.png") == null);
 								
 								Thread.sleep(2300);
 								IniciaSesion sesion = new IniciaSesion(users.getUsername(),users.getPassword(),screen);
@@ -161,7 +169,7 @@ public class InicioController {
 									break;
 								}
 
-								robot.close();
+								driver.quit();
 								//Desconectar la vpn para el siguiente usuario
 								if(vpn != null) {
 									vpn.disconnectVpn();
@@ -256,7 +264,7 @@ public class InicioController {
 					break;
 				case 3:
 					//Revisar los mensajes
-					reviewMessage();
+					//reviewMessage();
 					break;
 				case 4:
 					//Publicacion final
@@ -273,10 +281,12 @@ public class InicioController {
 					break;
 				case 6:
 					//Publicacion normal
+					po.setTasks_model_id(taskModelId);
 					addPostNormal();
 					break;
 				case 7:
-					//followUsers();
+					followUsers();
+					validateUsersFollows();
 					break;
 				case 8:
 					getFollowers();
@@ -325,13 +335,13 @@ public class InicioController {
 			
 			Thread.sleep(getNumberRandomForSecond(1048, 1572));
 			robot.enter();
-			Thread.sleep(getNumberRandomForSecond(3548, 4572));
+			Thread.sleep(getNumberRandomForSecond(8548, 9572));
 			
 			System.out.println("Siguiente");
 			robot.dimensions(1215, 132);
 			Thread.sleep(getNumberRandomForSecond(478, 896));
 			robot.clickPressed();
-			Thread.sleep(getNumberRandomForSecond(2489, 3549));
+			Thread.sleep(getNumberRandomForSecond(4489, 5549));
 
 		    
 			//234, 192
@@ -340,7 +350,7 @@ public class InicioController {
 			robot.clickPressed();
 			Thread.sleep(getNumberRandomForSecond(2489, 3549));
 			
-			System.out.println("Escribir frase");
+			System.out.println("Escribir frase "+phrase);
 			
 			robot.inputWriteUsers(phrase);
 			Thread.sleep(getNumberRandomForSecond(1489, 1549));
@@ -358,7 +368,7 @@ public class InicioController {
 	}
 	
 	private void addPostNormal() throws InterruptedException, SQLException {
-		
+		System.out.println("AGREGAR POST DE MADURACION");
 		
 		Task_Maduration tMaduration = new Task_Maduration();
 		tMaduration.setLanguages(languages_id);
@@ -373,6 +383,7 @@ public class InicioController {
 		System.out.println("Descargando imagen "+tMaduration.getImage());
 		SftpController sftp = new SftpController();
 		sftp.downloadFileSftp(SftpController.PATH_IMAGE_MADURATION_UPLOAD, tMaduration.getImage(), SftpController.PATH_IMAGE_DOWNLOAD_FTP);
+		
 		uploadImage(tMaduration);
 		
 		
@@ -432,6 +443,7 @@ public class InicioController {
 			
 			po.setCategories_id(categoriaId);
 			po.setTasks_maduration_id(tMaduration.getTasks_Maduration_id());
+			po.setLink_instagram(null);
 			po.setTasks_grid_id(0);
 			po.setTasks_model_id(0);
 			po.insert();
@@ -803,6 +815,8 @@ public class InicioController {
 				selectPhotoAndFollow();
 			}else if(tags.getTags().substring(0,1).equals("@")) {
 				selectFollowerOfUser();
+			}else {
+				selectFollowerOfUser();
 			}
 			
 		}
@@ -843,7 +857,7 @@ public class InicioController {
 			driver.clickButton(1, "/html/body/div[1]/section/main/div/header/section/ul/li[2]/a", "Followings");
 			
 			Thread.sleep(3450);
-			int numRand = getNumberRandomForSecond(55, 700);
+			int numRand = getNumberRandomForSecond(55, 400);
 			scrollDown(numRand);
 			scrollUp(numRand);
 			
@@ -950,6 +964,7 @@ public class InicioController {
 	
 	
 	private void getFollowers() throws InterruptedException {
+		System.out.println("CONTAR CANTIDAD DE FOLLOWS DEL USUARIO");
 		//Ir al perfil del usuario
 		robot.dimensions(1142, 967);
 		Thread.sleep(getNumberRandomForSecond(254, 621));
@@ -957,43 +972,81 @@ public class InicioController {
 		Thread.sleep(getNumberRandomForSecond(2001, 3099));
 		
 		
-		int followers = 0, following = 0;
+		int followers = 0;
+		int following = 0;
 		
 		
 		String folowersString = driver.getTitle(1, "/html/body/div[1]/section/main/div/header/section/ul/li[2]/a/span");
 		String followingString = driver.getText(1, "/html/body/div[1]/section/main/div/header/section/ul/li[3]/a/span");
 		
-		followers = Integer.parseInt(folowersString);
-		following = Integer.parseInt(followingString);
-		Follower_Report userF = new Follower_Report();
-		userF.setUsers_id(idUser);
-		userF.setFollowers(followers);
-		userF.setFollowing(following);
-		
-		userF = userF.find(idUser);
-		
-		
-		if(userF == null) {
-			userF = new Follower_Report();
+		try{
+			followers = Integer.parseInt(folowersString);
+			following = Integer.parseInt(followingString);
+			Follower_Report userF = new Follower_Report();
 			userF.setUsers_id(idUser);
 			userF.setFollowers(followers);
 			userF.setFollowing(following);
-			try {
-				userF.insert();
-				System.out.println("Se insertaron los datos correctamente");
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}else {
-			if(following != userF.getFollowing() || followers != userF.getFollowers()) {
+			
+			userF = userF.find(idUser);
+			
+			
+			if(userF == null) {
+				userF = new Follower_Report();
+				userF.setUsers_id(idUser);
 				userF.setFollowers(followers);
 				userF.setFollowing(following);
 				try {
 					userF.insert();
-					System.out.println("Se insertaron nuevos datos correctamente");
+					System.out.println("Se insertaron los datos correctamente");
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
+			}else {
+				if(following != userF.getFollowing() || followers != userF.getFollowers()) {
+					userF.setFollowers(followers);
+					userF.setFollowing(following);
+					try {
+						userF.insert();
+						System.out.println("Se insertaron nuevos datos correctamente");
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}catch(NumberFormatException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void validateUsersFollows() throws InterruptedException {
+		User_Follower uf = new User_Follower();
+		uf.setUsers_id(idUser);
+		
+		List<Follower> list = uf.getUserFollowe();
+		
+		for(Follower follo : list) {
+			driver.goPage(follo.getLink());
+			Thread.sleep(2500);
+			
+			if(screen.exists(PATH_IMAGES_SIKULI+"unfollow-Instagram.png") != null) {
+				clickException(PATH_IMAGES_SIKULI+"unfollow-Instagram.png"); 
+				
+				if(screen.exists(PATH_IMAGES_SIKULI+"confirm_unfollow-Instagram.png") != null) {
+					clickException(PATH_IMAGES_SIKULI+"confirm_unfollow-Instagram.png");
+				}else if(screen.exists(PATH_IMAGES_SIKULI+"confirm_unfollow1-Instagram.png") != null) {
+					clickException(PATH_IMAGES_SIKULI+"confirm_unfollow1-Instagram.png");
+				}
+				
+				Thread.sleep(2500);
+				if(screen.exists(PATH_IMAGES_SIKULI+"follow_back-Instagram.png") != null) {
+					System.out.println("Se le devolvio el follow al usuario");
+					clickException(PATH_IMAGES_SIKULI+"follow_back-Instagram.png");
+				}else if(screen.exists(PATH_IMAGES_SIKULI+"follow_back1-Instagram.png") != null) {
+					System.out.println("Se le devolvio el follow al usuario");
+					clickException(PATH_IMAGES_SIKULI+"follow_back1-Instagram.png");
+				}
+				
+				Thread.sleep(2500);
 			}
 		}
 	}
@@ -1036,7 +1089,7 @@ public class InicioController {
 		try {
 			screen.click(pathPhoto);
 			Thread.sleep(850);
-			robot.dimensions(1, 1);
+			robot.dimensions(12, 12);
 		}catch(IllegalThreadStateException | FindFailed e) {
 			System.out.println("Error con el clik");
 		}

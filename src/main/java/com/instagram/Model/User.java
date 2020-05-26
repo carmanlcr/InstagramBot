@@ -61,7 +61,7 @@ public class User implements Model{
                user.setEmail(rs.getString("u.email"));
                user.setActive(rs.getBoolean("u.active"));
                user.setCreator(rs.getString("u.creator"));
-               user.setBlock(rs.getInt("user_blo_null")  == 0 ? false : true);
+               user.setBlock(rs.getBoolean("user_blo_null"));
 			}
 			
 		}catch(Exception e) {
